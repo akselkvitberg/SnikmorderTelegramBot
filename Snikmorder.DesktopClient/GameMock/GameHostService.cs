@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Services;
 using Telegram.Bot.Types;
 
-namespace Snikmorder.DesktopClient.GameHost
+namespace Snikmorder.DesktopClient.GameMock
 {
     public class GameHostService
     {

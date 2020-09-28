@@ -4,12 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Snikmorder.DesktopClient"
+        xmlns:gameMock="clr-namespace:Snikmorder.DesktopClient.GameMock"
+        xmlns:controls="clr-namespace:Snikmorder.DesktopClient.Controls"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         d:DataContext="{d:DesignInstance local:MainWindow}">
     <Window.Resources>
-        <DataTemplate DataType="{x:Type local:TelegramMockUser}">
-            <local:UserView/>
+        <DataTemplate DataType="{x:Type gameMock:TelegramMockUser}">
+            <controls:UserView/>
         </DataTemplate>
     </Window.Resources>
     <Grid>

@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="Snikmorder.DesktopClient.UserView"
+﻿<UserControl x:Class="Snikmorder.DesktopClient.Controls.UserView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Snikmorder.DesktopClient"
+             xmlns:gameMock="clr-namespace:Snikmorder.DesktopClient.GameMock"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance local:TelegramMockUser}"
+             d:DataContext="{d:DesignInstance gameMock:TelegramMockUser}"
              d:DesignHeight="300" d:DesignWidth="300"
              >
     <Border BorderBrush="Gray" BorderThickness="1" Margin="10">
@@ -18,7 +18,7 @@
         <ScrollViewer Name="scroller">
             <ItemsControl Grid.Row="0" ItemsSource="{Binding Messages}" IsTabStop="False">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type local:TelegramMockMessage}">
+                    <DataTemplate DataType="{x:Type gameMock:TelegramMockMessage}">
                         <Border BorderBrush="Gray" BorderThickness="1" x:Name="messageborder" Padding="3"
                                 Margin="3 3"
                                 SnapsToDevicePixels="True" UseLayoutRounding="True">

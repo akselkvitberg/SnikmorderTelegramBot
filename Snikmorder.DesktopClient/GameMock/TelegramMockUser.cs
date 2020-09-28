@@ -1,17 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Net.Http;
-using System.Net.Mime;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using Snikmorder.DesktopClient.Annotations;
-using Snikmorder.DesktopClient.GameHost;
-using Telegram.Bot.Types;
 
-namespace Snikmorder.DesktopClient
+namespace Snikmorder.DesktopClient.GameMock
 {
     public class TelegramMockUser : INotifyPropertyChanged
     {
