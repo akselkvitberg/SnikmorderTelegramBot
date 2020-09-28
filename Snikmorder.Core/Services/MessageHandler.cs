@@ -1,7 +1,6 @@
-﻿using SnikmorderTelegramBot.Models;
-using Telegram.Bot.Types;
+﻿using Telegram.Bot.Types;
 
-namespace SnikmorderTelegramBot.Services
+namespace Snikmorder.Core.Services
 {
     public class MessageHandler
     {

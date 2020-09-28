@@ -57,4 +57,14 @@ Agent-navn: {1}
 Er dette rett, send /ok
 Er dette feil, start på nytt ved å sende /nySøknad</value>
     </data>
+    <data name="WaitForAdminApproval" xml:space="preserve">
+        <value>Din søknad er registrert og venter på godkjenning fra hovedkvarteret. Du vil få svar så fort som mulig. I mellomtiden ber vi deg vente.</value>
+    </data>
+    <data name="WaitForGameStart" xml:space="preserve">
+        <value>Du har ingen mål enda.
+Du vil få tildelt et oppdrag snart.</value>
+    </data>
+    <data name="ConfirmKill" xml:space="preserve">
+        <value>For å eliminiere en agent må du skrive inn agent-navnet til den eliminerte agenten.</value>
+    </data>
 </root>

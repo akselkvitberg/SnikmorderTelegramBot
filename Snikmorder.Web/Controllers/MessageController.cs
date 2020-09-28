@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SnikmorderTelegramBot.Services;
+using Snikmorder.Core.Services;
 using Telegram.Bot.Types;
 
 namespace SnikmorderTelegramBot.Controllers
@@ -23,9 +20,15 @@ namespace SnikmorderTelegramBot.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TelegramMessage(Message message)
+        public async Task<IActionResult> TelegramMessage(Message? message)
         {
             // Send to parser
+
+            if (message == null)
+            {
+                return Ok();
+            }
+
             _messageHandler.OnMessage(message);
             return Ok();
         }

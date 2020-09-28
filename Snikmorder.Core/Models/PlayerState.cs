@@ -1,4 +1,4 @@
-﻿namespace SnikmorderTelegramBot.Models
+﻿namespace Snikmorder.Core.Models
 {
     public enum PlayerState
     {
@@ -14,14 +14,12 @@
         
         Active,
         
-        Killing,
+        ConfirmKill,
         WaitingForNewTarget,
         
         ReportingKilling,
         
         Killed,
         
-        
-        Dead,
     }
 }

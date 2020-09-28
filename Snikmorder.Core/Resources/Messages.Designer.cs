@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SnikmorderTelegramBot.Resources {
+namespace Snikmorder.Core.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SnikmorderTelegramBot.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SnikmorderTelegramBot.Resources.Messages", typeof(Messages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Snikmorder.Core.Resources.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -104,6 +104,15 @@ namespace SnikmorderTelegramBot.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to For å eliminiere en agent må du skrive inn agent-navnet til den eliminerte agenten..
+        /// </summary>
+        internal static string ConfirmKill {
+            get {
+                return ResourceManager.GetString("ConfirmKill", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Vi har registrert navnet ditt.
         ///For å fortsette trenger vi å vite agent-navnet ditt.
         ///Vi har gitt deg navnet Agent {0}, men du kan lage ditt eget navn selv.
@@ -132,6 +141,25 @@ namespace SnikmorderTelegramBot.Resources {
         internal static string UnknownResponse {
             get {
                 return ResourceManager.GetString("UnknownResponse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Din søknad er registrert og venter på godkjenning fra hovedkvarteret. Du vil få svar så fort som mulig. I mellomtiden ber vi deg vente..
+        /// </summary>
+        internal static string WaitForAdminApproval {
+            get {
+                return ResourceManager.GetString("WaitForAdminApproval", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Du har ingen mål enda.
+        ///Du vil få tildelt et oppdrag snart..
+        /// </summary>
+        internal static string WaitForGameStart {
+            get {
+                return ResourceManager.GetString("WaitForGameStart", resourceCulture);
             }
         }
         

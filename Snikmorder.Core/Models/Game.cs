@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace SnikmorderTelegramBot.Models
+namespace Snikmorder.Core.Models
 {
     public class Game
     {
         public bool IsStarted { get; set; }
-        public ICollection<Player> Players { get; set; }
+        public List<Player> Players { get; set; } = new List<Player>();
     }
 }
