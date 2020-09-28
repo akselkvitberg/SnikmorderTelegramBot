@@ -2,19 +2,24 @@
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Resources;
 using Telegram.Bot.Types;
+using Game = Snikmorder.Core.Models.Game;
 
 namespace Snikmorder.Core.Services
 {
     public class ApprovalStateMachine
     {
         private readonly ITelegramSender _sender;
+        private readonly PlayerRepository _playerRepository;
+        private readonly Game _game;
         Queue<Player> playersWaitingForApproval = new Queue<Player>();
 
         Dictionary<int, Player> ApprovalState = new Dictionary<int, Player>();
 
-        public ApprovalStateMachine(ITelegramSender sender)
+        public ApprovalStateMachine(ITelegramSender sender, PlayerRepository playerRepository, Game game)
         {
             _sender = sender;
+            _playerRepository = playerRepository;
+            _game = game;
         }
 
         public bool IsFromAdmin(Message message)
@@ -58,9 +63,38 @@ namespace Snikmorder.Core.Services
             }
             else
             {
-                if (text == "/neste")
+                switch (text)
                 {
-                    GetNextForApproval(fromId);
+                    case "/hjelp":
+                        _sender.SendMessage(fromId, "Kommandoer:\n/neste\n/status\n/begynn");
+                        return;
+                    case "/status" when !_game.IsStarted:
+                        int waitingPlayers = _playerRepository.GetWaitingPlayerCount();
+                        _sender.SendMessage(fromId, $"Det er {waitingPlayers} agenter som venter på start.\n{playersWaitingForApproval.Count} agenter som venter på godkjenning.");
+                        return;
+                    case "/status":
+                        int activePlayers = _playerRepository.GetActivePlayerCount();
+                        int deadPlayers = _playerRepository.GetDeadPlayerCount();
+                        _sender.SendMessage(fromId, $"Det er {activePlayers} agenter i spill.\nDet er {deadPlayers} døde agenter.");
+                        return;
+                    case "/neste":
+                        GetNextForApproval(fromId);
+                        return;
+                    case "/begynn" when playersWaitingForApproval.Count != 0:
+                        _sender.SendMessage(fromId, $"Det er fremdeles {playersWaitingForApproval.Count} agenter som må godkjennes");
+                        return;
+                    case "/begynn":
+                        int waitingPlayers2 = _playerRepository.GetWaitingPlayerCount();
+                        _sender.SendMessage(fromId, $"Det er {waitingPlayers2} agenter som venter på start.\nEr du sikker på at du vil starte spillet?\n/JA/NEI");
+                        _game.PreStart = true;
+                        return;
+                    case "/ja" when _game.PreStart:
+                        _sender.SendMessage(fromId, $"Spillet er startet!");
+                        _game.StartGame();
+                        return;
+                    case "/nei" when _game.PreStart:
+                        _game.PreStart = false;
+                        return;
                 }
             }
         }

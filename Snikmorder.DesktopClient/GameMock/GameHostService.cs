@@ -3,6 +3,7 @@ using System.Linq;
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Services;
 using Telegram.Bot.Types;
+using Game = Snikmorder.Core.Models.Game;
 
 namespace Snikmorder.DesktopClient.GameMock
 {
@@ -15,9 +16,10 @@ namespace Snikmorder.DesktopClient.GameMock
         public GameHostService()
         {
             var mockTelegramSender = new MockTelegramSender(this);
-            var adminStateMachine = new ApprovalStateMachine(mockTelegramSender);
             var playerRepository = new PlayerRepository();
-            var playerStateMachine = new PlayerStateMachine(mockTelegramSender, playerRepository, adminStateMachine);
+            var game = new Game(playerRepository, mockTelegramSender);
+            var adminStateMachine = new ApprovalStateMachine(mockTelegramSender, playerRepository, game);
+            var playerStateMachine = new PlayerStateMachine(mockTelegramSender, playerRepository, adminStateMachine, game);
             MessageHandler = new MessageHandler(adminStateMachine, playerStateMachine);
 
             for (var i = 0; i <= 5; i++)
@@ -66,13 +68,7 @@ namespace Snikmorder.DesktopClient.GameMock
         {
             _gameHostService = gameHostService;
         }
-
-        public void SendMessage(Player player, string message)
-        {
-            var telegramMockUser = _gameHostService.Users.FirstOrDefault(x=>x.UserId == player.TelegramUserId);
-            telegramMockUser?.AddMessage(message);
-        }
-
+        
         public void SendMessage(int id, string message)
         {
             var telegramMockUser = _gameHostService.Users.FirstOrDefault(x=>x.UserId == id);

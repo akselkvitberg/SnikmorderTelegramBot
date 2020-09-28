@@ -28,5 +28,27 @@ namespace Snikmorder.Core.Services
         {
             return players.FirstOrDefault(x => x.AgentName?.ToLower() == agentName);
         }
+
+        public int GetWaitingPlayerCount()
+        {
+            return players.Count(x => x.State == PlayerState.WaitingForGameStart);
+        }
+
+        public int GetActivePlayerCount()
+        {
+            return players.Count(x => x.State == PlayerState.Active);
+
+        }
+
+        public int GetDeadPlayerCount()
+        {
+            return players.Count(x => x.State == PlayerState.Killed);
+
+        }
+
+        public List<Player> GetAllWaitingPlayers()
+        {
+            return players.Where(x => x.State == PlayerState.WaitingForGameStart).ToList();
+        }
     }
 }

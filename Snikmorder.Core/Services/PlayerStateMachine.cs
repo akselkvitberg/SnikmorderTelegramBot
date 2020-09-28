@@ -4,6 +4,7 @@ using System.Net.Mime;
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Resources;
 using Telegram.Bot.Types;
+using Game = Snikmorder.Core.Models.Game;
 
 namespace Snikmorder.Core.Services
 {
@@ -12,12 +13,14 @@ namespace Snikmorder.Core.Services
         private readonly ITelegramSender _sender;
         private readonly PlayerRepository _playerRepository;
         private readonly ApprovalStateMachine _approvalStateMachine;
+        private readonly Game _game;
 
-        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository, ApprovalStateMachine approvalStateMachine)
+        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository, ApprovalStateMachine approvalStateMachine, Game game)
         {
             _sender = sender;
             _playerRepository = playerRepository;
             _approvalStateMachine = approvalStateMachine;
+            _game = game;
         }
 
         public void HandlePlayerMessage(Message message)
@@ -29,6 +32,14 @@ namespace Snikmorder.Core.Services
             {
                 player = HandleNewPlayer(message);
             }
+
+
+            if (_game.IsStarted && player.State <= PlayerState.Active)
+            {
+                _sender.SendMessage(player, "Spillet er allerede i gang. Du rakk desverre ikke å bli med.");
+                return;
+            }
+
 
             if (player.State < PlayerState.WaitingForAdminApproval && string.Equals(message.Text, "/nysøknad", StringComparison.InvariantCultureIgnoreCase))
             {

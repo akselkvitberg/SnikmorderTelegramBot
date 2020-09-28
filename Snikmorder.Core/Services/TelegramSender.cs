@@ -25,8 +25,6 @@ namespace Snikmorder.Core.Services
             _botClient.SendPhotoAsync(id, new InputMedia(pictureId), message);
         }
 
-        public void SendMessage(Player player, string message) => SendMessage(new TelegramReplyMessage(player.TelegramUserId, message));
-
         public Task SendMessage(TelegramReplyMessage replyMessage)
         {
             _logger.LogDebug($"Sending message: {replyMessage.Id}: {replyMessage.Text}");
