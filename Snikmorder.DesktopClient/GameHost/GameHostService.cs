@@ -18,11 +18,15 @@ namespace Snikmorder.DesktopClient.GameHost
 
         public GameHostService()
         {
-            MessageHandler = new MessageHandler(new AdminService(), new PlayerStateMachine(new MockTelegramSender(this), new PlayerRepository()));
+            var mockTelegramSender = new MockTelegramSender(this);
+            var adminStateMachine = new ApprovalStateMachine(mockTelegramSender);
+            var playerRepository = new PlayerRepository();
+            var playerStateMachine = new PlayerStateMachine(mockTelegramSender, playerRepository, adminStateMachine);
+            MessageHandler = new MessageHandler(adminStateMachine, playerStateMachine);
 
-            for (var i = 1; i <= 5; i++)
+            for (var i = 0; i <= 5; i++)
             {
-                Users.Add(new TelegramMockUser(i, this));
+                Users.Add(new TelegramMockUser(i, this, i == 0));
             }
         }
 
@@ -71,6 +75,18 @@ namespace Snikmorder.DesktopClient.GameHost
         {
             var telegramMockUser = _gameHostService.Users.FirstOrDefault(x=>x.UserId == player.TelegramUserId);
             telegramMockUser?.AddMessage(message);
+        }
+
+        public void SendMessage(int id, string message)
+        {
+            var telegramMockUser = _gameHostService.Users.FirstOrDefault(x=>x.UserId == id);
+            telegramMockUser?.AddMessage(message);
+        }
+
+        public void SendImage(int id, string message, string? pictureId)
+        {
+            var telegramMockUser = _gameHostService.Users.FirstOrDefault(x=>x.UserId == id);
+            telegramMockUser?.AddImage(message, pictureId);
         }
     }
 }

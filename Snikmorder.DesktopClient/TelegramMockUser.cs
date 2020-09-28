@@ -15,13 +15,17 @@ namespace Snikmorder.DesktopClient
 {
     public class TelegramMockUser : INotifyPropertyChanged
     {
-        public TelegramMockUser(int userId, GameHostService gameHostService)
+        public TelegramMockUser(int userId, GameHostService gameHostService, bool isAdmin)
         {
             _gameHostService = gameHostService;
             UserId = userId;
+            IsAdmin = isAdmin;
+            InputText = IsAdmin ? "/neste" : "/start";
         }
 
         public int UserId { get; set; }
+        public bool IsAdmin { get; }
+        public string AdminText => IsAdmin ? "Adm" : "";
 
 
         public ObservableCollection<TelegramMockMessage> Messages { get; } = new ObservableCollection<TelegramMockMessage>();
@@ -46,20 +50,17 @@ namespace Snikmorder.DesktopClient
             Messages.Add(new TelegramMockMessage(message, false));
         }
 
-        public void AddImage(string imagePath)
+        public void AddImage(string message, string imagePath)
         {
-            Messages.Add(new TelegramImageMockMessage(imagePath, false));
+            Messages.Add(new TelegramMockMessage(message, false, imagePath));
         }
 
         #region SendMessageCommand
 
         private RelayCommand _sendMessageCommand;
-        private GameHostService _gameHostService;
+        private readonly GameHostService _gameHostService;
 
-        public RelayCommand SendMessageCommand
-        {
-            get { return _sendMessageCommand ??= new RelayCommand(OnExecuteSendMessageCommand, OnCanExecuteSendMessageCommand); }
-        }
+        public RelayCommand SendMessageCommand => _sendMessageCommand ??= new RelayCommand(OnExecuteSendMessageCommand, OnCanExecuteSendMessageCommand);
 
         private void OnExecuteSendMessageCommand(object o)
         {
@@ -79,15 +80,13 @@ namespace Snikmorder.DesktopClient
 
         private RelayCommand _sendImageCommand;
 
-        public RelayCommand SendImageCommand
-        {
-            get { return _sendImageCommand ?? (_sendImageCommand = new RelayCommand(OnExecuteSendImageCommand)); }
-        }
+        public RelayCommand SendImageCommand => _sendImageCommand ??= new RelayCommand(OnExecuteSendImageCommand);
 
         private void OnExecuteSendImageCommand(object o)
         {
-            Messages.Add(new TelegramImageMockMessage(@"C:\Users\akkv\OneDrive\Development\IconExperience\iconex_g2\g_collection\g_collection_png\blue\128x128\astrologer.png", true));
-            _gameHostService.SendMessage(UserId, imagePath: @"C:\Users\akkv\OneDrive\Development\IconExperience\iconex_g2\g_collection\g_collection_png\blue\128x128\astrologer.png");
+            var imageSource = $"https://api.adorable.io/avatars/128/Agent{UserId}.png";
+            Messages.Add(new TelegramMockMessage("", true, imageSource));
+            _gameHostService.SendMessage(UserId, imagePath: imageSource);
         }
 
         #endregion
@@ -105,20 +104,13 @@ namespace Snikmorder.DesktopClient
     {
         public string Message { get; }
         public bool Mine { get; }
+        public string ImagePath { get; set; }
+        public bool ShowImage => ImagePath != null;
 
-        public TelegramMockMessage(string message, bool mine)
+        public TelegramMockMessage(string message, bool mine, string imagePath = null)
         {
             Message = message;
             Mine = mine;
-        }
-    }
-
-    public class TelegramImageMockMessage : TelegramMockMessage
-    {
-        public string ImagePath { get; set; }
-
-        public TelegramImageMockMessage(string imagePath, bool mine) : base("", mine)
-        {
             ImagePath = imagePath;
         }
     }

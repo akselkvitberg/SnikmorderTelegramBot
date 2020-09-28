@@ -11,11 +11,13 @@ namespace Snikmorder.Core.Services
     {
         private readonly ITelegramSender _sender;
         private readonly PlayerRepository _playerRepository;
+        private readonly ApprovalStateMachine _approvalStateMachine;
 
-        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository)
+        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository, ApprovalStateMachine approvalStateMachine)
         {
             _sender = sender;
             _playerRepository = playerRepository;
+            _approvalStateMachine = approvalStateMachine;
         }
 
         public void HandlePlayerMessage(Message message)
@@ -109,9 +111,10 @@ namespace Snikmorder.Core.Services
 
             var agentName = AgentNameGenerator.GetAgentName();
             var requestAgentName = string.Format(Messages.RequestAgentName, agentName);
+            
             _sender.SendMessage(player, requestAgentName);
+
             player.PlayerName = message.Text;
-            // Store temporary name
             player.AgentName = agentName;
             player.State = PlayerState.GivingAgentName;
         }
@@ -132,28 +135,30 @@ namespace Snikmorder.Core.Services
 
         private void HandleGivingSelfie(Player player, Message message)
         {
-            if (!message.Photo.Any())
+            if (message.Photo == null || message.Photo.Length == 0)
             {
                 _sender.SendMessage(player, Messages.UnknownResponse);
+                return;
             }
 
-            _sender.SendMessage(player, Messages.ApplicationRegistered);
+            var confirmApplication = string.Format(Messages.ConfirmApplication, player.PlayerName, player.AgentName);
+            _sender.SendMessage(player, confirmApplication);
             player.PictureId = message.Photo.OrderByDescending(x => x.Height).FirstOrDefault()?.FileId;
             player.State = PlayerState.ConfirmApplication;
-            
         }
 
         private void HandleConfirmApplication(Player player, Message message)
         {
             if (TextIsEmpty(player, message)) return;
 
-            
             // /nySøknad is handled at a higher level
             if (!string.Equals(message.Text, "/ok", StringComparison.InvariantCultureIgnoreCase))
             {
                 _sender.SendMessage(player, Messages.UnknownResponse);
                 return;
             }
+
+            _approvalStateMachine.AddApplication(player);
 
             _sender.SendMessage(player, Messages.ApplicationRegistered);
             player.State = PlayerState.WaitingForAdminApproval;

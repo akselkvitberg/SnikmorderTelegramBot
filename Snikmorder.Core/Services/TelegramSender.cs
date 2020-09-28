@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Snikmorder.Core.Models;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Snikmorder.Core.Services
@@ -18,6 +19,11 @@ namespace Snikmorder.Core.Services
         }
 
         public void SendMessage(int id, string message) => SendMessage(new TelegramReplyMessage(id, message));
+        public void SendImage(int id, string message, string? pictureId)
+        {
+            _logger.LogDebug($"Sending image: {id}: {pictureId}");
+            _botClient.SendPhotoAsync(id, new InputMedia(pictureId), message);
+        }
 
         public void SendMessage(Player player, string message) => SendMessage(new TelegramReplyMessage(player.TelegramUserId, message));
 

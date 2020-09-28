@@ -34,7 +34,7 @@ namespace SnikmorderTelegramBot
             });
 
             services.AddScoped<MessageHandler>();
-            services.AddScoped<AdminService>();
+            services.AddScoped<ApprovalStateMachine>();
             services.AddScoped<TelegramSender>();
             services.AddScoped<PlayerStateMachine>();
         }

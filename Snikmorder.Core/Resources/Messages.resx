@@ -1,70 +1,169 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <root>
-    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-        <xsd:element name="root" msdata:IsDataSet="true">
-            
-        </xsd:element>
-    </xsd:schema>
-    <resheader name="resmimetype">
-        <value>text/microsoft-resx</value>
-    </resheader>
-    <resheader name="version">
-        <value>1.3</value>
-    </resheader>
-    <resheader name="reader">
-        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-    <resheader name="writer">
-        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-    </resheader>
-    <data name="WelcomeMessage" xml:space="preserve">
-        <value>Velkommen til Divisjonen!
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WelcomeMessage" xml:space="preserve">
+    <value>Velkommen til Divisjonen!
 For å fullføre din søknad om å bli agent må du først sende oss ditt fulle navn.
 Men vi advarer deg. Dersom du prøver å bruke et feil navn vil søknaden din bli avslått.
 Du kan når som helst starte søknaden på nytt ved å skrive /nySøknad</value>
-    </data>
-    <data name="RequestAgentName" xml:space="preserve">
-        <value>Vi har registrert navnet ditt.
+  </data>
+  <data name="RequestAgentName" xml:space="preserve">
+    <value>Vi har registrert navnet ditt.
 For å fortsette trenger vi å vite agent-navnet ditt.
 Vi har gitt deg navnet Agent {0}, men du kan lage ditt eget navn selv.
 Skriv inn bekreftelse på at du vil ha agent-navn Agent {0} ved å svare /ok, eller send oss ditt eget agent navn hvis du vil ha et eget navn.
 Men husk at agent-navnet vil bli godkjent av hovedkvarteret, og kan bli avslått.</value>
-    </data>
-    <data name="UnknownResponse" xml:space="preserve">
-        <value>Vi forsto ikke hva du mente. For å bli agent må du følge instruksjonene nøyaktig!</value>
-    </data>
-    <data name="RequestSelfie" xml:space="preserve">
-        <value>Vi har registrert agent navnet ditt. Du vil bli kalt {0}.
+  </data>
+  <data name="UnknownResponse" xml:space="preserve">
+    <value>Vi forsto ikke hva du mente. For å bli agent må du følge instruksjonene nøyaktig!</value>
+  </data>
+  <data name="RequestSelfie" xml:space="preserve">
+    <value>Vi har registrert agent navnet ditt. Du vil bli kalt {0}.
 For å fullføre søknaden din må du sende oss et profilbilde. Send oss en selfie der det er helt tydelig hvem du er.</value>
-    </data>
-    <data name="ApplicationRegistered" xml:space="preserve">
-        <value>Takk.
+  </data>
+  <data name="ApplicationRegistered" xml:space="preserve">
+    <value>Takk.
 Søknaden din er nå registrert.
 Du vil få svar innen kort tid.</value>
-    </data>
-    <data name="ApplicationApproved" xml:space="preserve">
-        <value>Gratulerer {0}, søknaden din ble godkjent.
+  </data>
+  <data name="ApplicationApproved" xml:space="preserve">
+    <value>Gratulerer {0}, søknaden din ble godkjent.
 Du vil snart få tilsendt ditt første oppdrag.</value>
-    </data>
-    <data name="ApplicationNotApproved" xml:space="preserve">
-        <value>Beklager, søknaden din om å bli agent ble ikke godkjent. Prøv igjen.</value>
-    </data>
-    <data name="ConfirmApplication" xml:space="preserve">
-        <value>Vi har registert følgende søknad:
+  </data>
+  <data name="ApplicationNotApproved" xml:space="preserve">
+    <value>Beklager, søknaden din om å bli agent ble ikke godkjent. Prøv igjen ved å sende /nySøknad</value>
+  </data>
+  <data name="ConfirmApplication" xml:space="preserve">
+    <value>Vi har registert følgende søknad:
 Navn: {0}
 Agent-navn: {1}
 Er dette rett, send /ok
 Er dette feil, start på nytt ved å sende /nySøknad</value>
-    </data>
-    <data name="WaitForAdminApproval" xml:space="preserve">
-        <value>Din søknad er registrert og venter på godkjenning fra hovedkvarteret. Du vil få svar så fort som mulig. I mellomtiden ber vi deg vente.</value>
-    </data>
-    <data name="WaitForGameStart" xml:space="preserve">
-        <value>Du har ingen mål enda.
+  </data>
+  <data name="WaitForAdminApproval" xml:space="preserve">
+    <value>Din søknad er registrert og venter på godkjenning fra hovedkvarteret. Du vil få svar så fort som mulig. I mellomtiden ber vi deg vente.</value>
+  </data>
+  <data name="WaitForGameStart" xml:space="preserve">
+    <value>Du har ingen mål enda.
 Du vil få tildelt et oppdrag snart.</value>
-    </data>
-    <data name="ConfirmKill" xml:space="preserve">
-        <value>For å eliminiere en agent må du skrive inn agent-navnet til den eliminerte agenten.</value>
-    </data>
+  </data>
+  <data name="ConfirmKill" xml:space="preserve">
+    <value>For å eliminiere en agent må du skrive inn agent-navnet til den eliminerte agenten.</value>
+  </data>
 </root>
