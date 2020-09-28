@@ -52,6 +52,7 @@
         <DockPanel Grid.Row="1">
             <Button Content="Send" DockPanel.Dock="Right" Margin="5" Command="{Binding SendMessageCommand}" IsTabStop="False"/>
             <Button Content="📸" DockPanel.Dock="Right" Margin="5" Command="{Binding SendImageCommand}" IsTabStop="False"/>
+            <Button Content="🤖" DockPanel.Dock="Right" Margin="5" Command="{Binding MakePlayerCommand}" IsTabStop="False"/>
             <TextBlock Text="{Binding AdminText}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
             <TextBox Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" Margin="5" MaxLines="1"
                      AcceptsReturn="False">

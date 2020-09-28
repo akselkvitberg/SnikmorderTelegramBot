@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Snikmorder.DesktopClient.Annotations;
+using Snikmorder.DesktopClient.Utilities;
 
 namespace Snikmorder.DesktopClient.GameMock
 {
@@ -13,6 +15,8 @@ namespace Snikmorder.DesktopClient.GameMock
             UserId = userId;
             IsAdmin = isAdmin;
             InputText = IsAdmin ? "/neste" : "/start";
+
+            OnExecuteMakePlayerCommand(null);
         }
 
         public int UserId { get; set; }
@@ -79,6 +83,41 @@ namespace Snikmorder.DesktopClient.GameMock
             var imageSource = $"https://api.adorable.io/avatars/128/Agent{UserId}.png";
             Messages.Add(new TelegramMockMessage("", true, imageSource));
             _gameHostService.SendMessage(UserId, imagePath: imageSource);
+        }
+
+        #endregion
+
+        #region MakePlayerCommand
+
+        private bool hasMakedPlayerCommand = false;
+        private RelayCommand _makePlayerCommand;
+
+        public RelayCommand MakePlayerCommand => _makePlayerCommand ??= new RelayCommand(OnExecuteMakePlayerCommand, OnCanExecuteMakePlayerCommand);
+
+        private async void OnExecuteMakePlayerCommand(object o)
+        {
+            hasMakedPlayerCommand = true;
+
+            async Task Send(string msg)
+            {
+                Messages.Add(new TelegramMockMessage(msg, true));
+                _gameHostService.SendMessage(UserId, msg);
+                await Task.Delay(1500);
+            }
+
+            await Send("/start");
+            await Send("/nySøknad");
+            await Send(RandomData.GetRandomName());
+            await Send("/ok");
+            Messages.Add(new TelegramMockMessage(null, true, $"https://api.adorable.io/avatars/128/Agent{UserId}.png"));
+            _gameHostService.SendMessage(UserId, "", $"https://api.adorable.io/avatars/128/Agent{UserId}.png");
+            await Task.Delay(1500);
+            await Send("/ok");
+        }
+
+        private bool OnCanExecuteMakePlayerCommand(object o)
+        {
+            return !hasMakedPlayerCommand;
         }
 
         #endregion

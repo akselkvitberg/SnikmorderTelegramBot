@@ -25,9 +25,9 @@ namespace Snikmorder.Core.Models
 
             var allWaitingPlayers = _playerRepository.GetAllWaitingPlayers();
 
-            var list1 = allWaitingPlayers.OrderBy(x => new Guid()).ToList();
-            var list2 = allWaitingPlayers.Skip(1).Concat(allWaitingPlayers.Take(1)); // shift list by 1
-            
+            var list1 = allWaitingPlayers.OrderBy(x => Guid.NewGuid()).ToList();
+            var list2 = list1.Skip(1).Concat(list1.Take(1)); // shift list by 1
+
             // zip takes each element from list1 and joins it with the corresponding item from list2.
             var combine = list1.Zip(list2);
             foreach (var tuple in combine)
