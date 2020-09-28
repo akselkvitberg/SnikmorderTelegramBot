@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Snikmorder.DesktopClient.GameHost;
 
 namespace Snikmorder.DesktopClient
 {
@@ -22,27 +23,12 @@ namespace Snikmorder.DesktopClient
     /// </summary>
     public partial class MainWindow : Window
     {
-        private TelegramMockClient _telegramMockClient;
-
         public MainWindow()
         {
             InitializeComponent();
 
-            DataContext = this;
-
-            var httpClient = new HttpClient();
-            _telegramMockClient = new TelegramMockClient(httpClient);
-
-            for (int i = 0; i < 5; i++)
-            {
-                Users.Add(new TelegramMockUser(i, $"Name {i}", _telegramMockClient));
-            }
+            DataContext = new GameHostService();
         }
-
-
-        public ObservableCollection<TelegramMockUser> Users { get; } = new ObservableCollection<TelegramMockUser>();
-
-
     }
 
 }

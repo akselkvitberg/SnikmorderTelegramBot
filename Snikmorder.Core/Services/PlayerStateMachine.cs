@@ -9,10 +9,10 @@ namespace Snikmorder.Core.Services
 {
     public class PlayerStateMachine
     {
-        private readonly TelegramSender _sender;
+        private readonly ITelegramSender _sender;
         private readonly PlayerRepository _playerRepository;
 
-        public PlayerStateMachine(TelegramSender sender, PlayerRepository playerRepository)
+        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository)
         {
             _sender = sender;
             _playerRepository = playerRepository;
@@ -89,7 +89,7 @@ namespace Snikmorder.Core.Services
             var p = new Player()
             {
                 State = PlayerState.Started,
-                TelegramUserId = message.MessageId,
+                TelegramUserId = message.From.Id,
                 TelegramChatId = message.Chat.Id,
             };
 
@@ -126,16 +126,21 @@ namespace Snikmorder.Core.Services
                 player.AgentName = message.Text;
             }
             player.State = PlayerState.GivingSelfie;
-            _sender.SendMessage(player, Messages.RequestSelfie);
+            var requestSelfie = string.Format(Messages.RequestSelfie, player.AgentName);
+            _sender.SendMessage(player, requestSelfie);
         }
 
         private void HandleGivingSelfie(Player player, Message message)
         {
-            if (TextIsEmpty(player, message)) return;
+            if (!message.Photo.Any())
+            {
+                _sender.SendMessage(player, Messages.UnknownResponse);
+            }
 
             _sender.SendMessage(player, Messages.ApplicationRegistered);
-            player.PictureId = message.Photo.OrderByDescending(x=>x.Height).FirstOrDefault()?.FileId;
+            player.PictureId = message.Photo.OrderByDescending(x => x.Height).FirstOrDefault()?.FileId;
             player.State = PlayerState.ConfirmApplication;
+            
         }
 
         private void HandleConfirmApplication(Player player, Message message)

@@ -1,31 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Snikmorder.Core.Models;
 
 namespace Snikmorder.Core.Services
 {
     public class PlayerRepository
     {
-        public Player? GetPlayer(int telegramId)
+        List<Player> players = new List<Player>();
+
+        public Player? GetPlayer(int telegramUserId)
         {
-            return new Player()
-            {
-                
-            };
+            return players.FirstOrDefault(x => x.TelegramUserId == telegramUserId);
         }
 
         public void AddPlayer(Player player)
         {
-            throw new NotImplementedException();
+            players.Add(player);
         }
 
         public void Save(Player player)
         {
-            throw new NotImplementedException();
+            // not needed in this implementation
         }
 
         public Player? GetPlayerByAgentName(string agentName)
         {
-            return new Player();
+            return players.FirstOrDefault(x => x.AgentName?.ToLower() == agentName);
         }
     }
 }

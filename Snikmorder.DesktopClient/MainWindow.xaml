@@ -16,7 +16,7 @@
         <ItemsControl ItemsSource="{Binding Users}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Columns="5"/>
+                    <UniformGrid Columns="3" Rows="1"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>

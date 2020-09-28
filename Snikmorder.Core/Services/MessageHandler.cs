@@ -30,14 +30,19 @@ namespace Snikmorder.Core.Services
     {
         public bool IsFromAdmin(Message message)
         {
+            if (message.From.Id == 0)
+            {
+                return true;
+            }
             // Todo: Detect if user is admin - stored in db?
-            throw new System.NotImplementedException();
+            return false;
         }
 
         public void HandleAdminMessage(Message message)
         {
             // Handle messages such as "approve application"
-            throw new System.NotImplementedException();
+
         }
+
     }
 }

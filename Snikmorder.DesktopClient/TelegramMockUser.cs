@@ -6,43 +6,27 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using Snikmorder.DesktopClient.Annotations;
+using Snikmorder.DesktopClient.GameHost;
 using Telegram.Bot.Types;
 
 namespace Snikmorder.DesktopClient
 {
     public class TelegramMockUser : INotifyPropertyChanged
     {
-        private readonly TelegramMockClient _client;
-
-        public TelegramMockUser(int userId, string name, TelegramMockClient client)
+        public TelegramMockUser(int userId, GameHostService gameHostService)
         {
-            _client = client;
-            Name = name;
+            _gameHostService = gameHostService;
             UserId = userId;
         }
 
         public int UserId { get; set; }
 
-        private string _name;
-
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
 
         public ObservableCollection<TelegramMockMessage> Messages { get; } = new ObservableCollection<TelegramMockMessage>();
 
-        private string _inputText;
+        private string _inputText = "/start";
 
         public string InputText
         {
@@ -62,26 +46,48 @@ namespace Snikmorder.DesktopClient
             Messages.Add(new TelegramMockMessage(message, false));
         }
 
+        public void AddImage(string imagePath)
+        {
+            Messages.Add(new TelegramImageMockMessage(imagePath, false));
+        }
+
         #region SendMessageCommand
 
         private RelayCommand _sendMessageCommand;
+        private GameHostService _gameHostService;
 
         public RelayCommand SendMessageCommand
         {
-            get { return _sendMessageCommand ?? (_sendMessageCommand = new RelayCommand(OnExecuteSendMessageCommand, OnCanExecuteSendMessageCommand)); }
+            get { return _sendMessageCommand ??= new RelayCommand(OnExecuteSendMessageCommand, OnCanExecuteSendMessageCommand); }
         }
 
         private void OnExecuteSendMessageCommand(object o)
         {
             Messages.Add(new TelegramMockMessage(InputText, true));
-            Messages.Add(new TelegramMockMessage(InputText, false));
-            _client.SendMessage(UserId, InputText);
+            _gameHostService.SendMessage(UserId, InputText);
             InputText = "";
         }
 
         private bool OnCanExecuteSendMessageCommand(object o)
         {
             return !string.IsNullOrWhiteSpace(InputText);
+        }
+
+        #endregion
+
+        #region SendImageCommand
+
+        private RelayCommand _sendImageCommand;
+
+        public RelayCommand SendImageCommand
+        {
+            get { return _sendImageCommand ?? (_sendImageCommand = new RelayCommand(OnExecuteSendImageCommand)); }
+        }
+
+        private void OnExecuteSendImageCommand(object o)
+        {
+            Messages.Add(new TelegramImageMockMessage(@"C:\Users\akkv\OneDrive\Development\IconExperience\iconex_g2\g_collection\g_collection_png\blue\128x128\astrologer.png", true));
+            _gameHostService.SendMessage(UserId, imagePath: @"C:\Users\akkv\OneDrive\Development\IconExperience\iconex_g2\g_collection\g_collection_png\blue\128x128\astrologer.png");
         }
 
         #endregion
@@ -105,53 +111,15 @@ namespace Snikmorder.DesktopClient
             Message = message;
             Mine = mine;
         }
-        
     }
 
-    public class TelegramMockClient
+    public class TelegramImageMockMessage : TelegramMockMessage
     {
-        private readonly HttpClient _client;
-        private const string Uri = "https://localhost:10501/Message";
+        public string ImagePath { get; set; }
 
-        public TelegramMockClient(HttpClient client)
+        public TelegramImageMockMessage(string imagePath, bool mine) : base("", mine)
         {
-            _client = client;
-        }
-
-        public async Task SendMessage(int userId, string message)
-        {
-            var response = await _client.PostAsync(Uri, BuildMessage(userId, message));
-            if (response.IsSuccessStatusCode)
-            {
-                
-            }
-            else
-            {
-                
-            }
-        }
-
-        private HttpContent BuildMessage(in int userId, string text = null, string imagePath = null)
-        {
-            var msg = new Message()
-            {
-                From = new User()
-                {
-                    Id = userId
-                },
-                Text = text,
-                Photo = new []
-                {
-                    new PhotoSize()
-                    {
-                        Height = 10,
-                        Width = 10,
-                        FileId = imagePath,
-                    },
-                }
-            };
-
-            return new StringContent(System.Text.Json.JsonSerializer.Serialize(msg), Encoding.UTF8, MediaTypeNames.Application.Json);
+            ImagePath = imagePath;
         }
     }
 }
