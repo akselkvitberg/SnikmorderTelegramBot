@@ -137,7 +137,11 @@ namespace Snikmorder.Core.Services
             // If player sends /ok, keep temporary agent name
             if (!string.Equals(message.Text, "/ok", StringComparison.InvariantCultureIgnoreCase))
             {
-                player.AgentName = message.Text;
+                if (message.Text.ToLower().Contains("agent"))
+                    player.AgentName = message.Text.Replace("agent", "").Trim();
+
+                else
+                    player.AgentName = message.Text;
             }
             player.State = PlayerState.GivingSelfie;
             var requestSelfie = string.Format(Messages.RequestSelfie, player.AgentName);
