@@ -11,8 +11,8 @@
         
         public PlayerState State { get; set; }
         
-        public Player? Target { get; set; }
-        public Player? Hunter { get; set; }
+        public int TargetId { get; set; }
+        
         public long TelegramChatId { get; set; }
     }
 }

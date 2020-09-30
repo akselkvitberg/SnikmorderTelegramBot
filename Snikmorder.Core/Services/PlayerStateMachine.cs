@@ -34,7 +34,7 @@ namespace Snikmorder.Core.Services
             }
 
 
-            if (_game.IsStarted && player.State <= PlayerState.Active)
+            if (_game.IsStarted && player.State < PlayerState.Active)
             {
                 _sender.SendMessage(player, "Spillet er allerede i gang. Du rakk desverre ikke å bli med.");
                 return;
@@ -80,10 +80,6 @@ namespace Snikmorder.Core.Services
                     break;
                 case PlayerState.ConfirmKill:
                     HandleConfirmKill(player, message);
-                    break;
-                case PlayerState.WaitingForNewTarget:
-                    // todo, need separate handler for this?
-                    HandleWaitingForGameStart(player, message);
                     break;
                 case PlayerState.ReportingKilling:
                     HandleReportingKilling(player, message);
@@ -240,29 +236,53 @@ namespace Snikmorder.Core.Services
                 return;
             }
 
-            var targetAgentName = player.Target?.AgentName;
+            var target = _playerRepository.GetPlayer(player.TargetId);
+            if (target == null)
+            {
+                throw new NullReferenceException();
+                return;// todo: error
+            }
+            
+            var targetAgentName = target.AgentName;
 
             if (targetAgentName == null)
             {
-                // something bad happened
+                // something bad happened - no agent name set on agent
                 return;
                 // log this
             }
 
-            var agentName = message.Text.ToLower();
+            var agentName = message.Text.ToLower().Replace("agent", "").Trim();
 
-            agentName = agentName.Replace("agent", "").Trim();
-            targetAgentName = targetAgentName.Replace("agent", "").Trim();
-
-            if (agentName == targetAgentName)
+            // No spaces
+            if (agentName.Contains(' '))
             {
-                if (player.Target != null) player.Target.State = PlayerState.Killed; //todo save
-                throw new NotImplementedException(); // TODO: START PROCESS TO KILL TARGET, AND ASSIGN NEW TARGET TO PLAYER
+                _sender.SendMessage(player, "Alle agentnavn er bare et ord. Prøv igjen.");
+                return;
             }
-            else
+
+            targetAgentName = targetAgentName.ToLower().Replace("agent", "").Trim();
+
+            if (agentName != targetAgentName)
             {
                 player.State = PlayerState.Active;
                 _sender.SendMessage(player, "BEKLAGER FEIL AGENT NAVN. AVBRUTT");
+                return;
+            }
+
+            player.State = PlayerState.Active;
+            target.State = PlayerState.Killed; // todo: Save
+            var newTarget = _playerRepository.GetPlayer(target.TargetId);
+            player.TargetId = target.TargetId;
+            
+            _sender.SendMessage(target, "Beklager du er ute av spillet.");
+            if (newTarget != null)
+            {
+                _sender.SendImage(player, "Nytt mål: osv osv osv", newTarget.PictureId);
+            }
+            else
+            {
+                // todo: Error?
             }
         }
 

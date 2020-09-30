@@ -32,15 +32,9 @@ namespace Snikmorder.Core.Models
             var combine = list1.Zip(list2);
             foreach (var tuple in combine)
             {
-                tuple.First.Target = tuple.Second;
-                tuple.Second.Hunter = tuple.First;
-            }
-
-            foreach (var player in allWaitingPlayers)
-            {
-                player.State = PlayerState.Active;
-
-                _sender.SendImage(player, $"Ditt første mål er:\n{player.Target!.PlayerName}", player.Target.PictureId);
+                tuple.First.TargetId = tuple.Second.TelegramUserId;
+                tuple.First.State = PlayerState.Active;
+                _sender.SendImage(tuple.First, $"Ditt første mål er:\n{tuple.Second.PlayerName}", tuple.Second.PictureId);
             }
         }
     }

@@ -15,7 +15,6 @@
         Active,
         
         ConfirmKill,
-        WaitingForNewTarget,
         
         ReportingKilling,
         
