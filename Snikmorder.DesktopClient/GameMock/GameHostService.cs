@@ -22,7 +22,7 @@ namespace Snikmorder.DesktopClient.GameMock
             var playerStateMachine = new PlayerStateMachine(mockTelegramSender, playerRepository, adminStateMachine, game);
             MessageHandler = new MessageHandler(adminStateMachine, playerStateMachine);
 
-            for (var i = 0; i <= 16; i++)
+            for (var i = 0; i < 10; i++)
             {
                 Users.Add(new TelegramMockUser(i, this, i == 0));
             }

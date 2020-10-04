@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:gameMock="clr-namespace:Snikmorder.DesktopClient.GameMock"
+             xmlns:controls="clr-namespace:Snikmorder.DesktopClient.Controls"
+             xmlns:desktopClient="clr-namespace:Snikmorder.DesktopClient"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance gameMock:TelegramMockUser}"
              d:DesignHeight="300" d:DesignWidth="300"
@@ -11,11 +13,17 @@
     <Border BorderBrush="Gray" BorderThickness="1" Margin="10">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ItemsControl Grid.Row="0" x:Name="items"  ItemsSource="{Binding Messages}" IsTabStop="False">
+        <TextBlock>
+            <Run Text="{Binding PlayerName}"/>. - 
+            <Run Text="{Binding AgentName}"/>
+        </TextBlock>
+
+        <ItemsControl Grid.Row="1" x:Name="items"  ItemsSource="{Binding Messages}" IsTabStop="False">
             <ItemsControl.Template>
                 <ControlTemplate>
                     <ScrollViewer Padding="{TemplateBinding Padding}">
@@ -30,20 +38,21 @@
                             SnapsToDevicePixels="True" UseLayoutRounding="True">
                         <StackPanel>
                             <Image MaxWidth="128" MaxHeight="128" x:Name="img"/>
-                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+                            <TextBlock controls:LinkHelper.Text="{Binding Message}" TextWrapping="Wrap"
+                                       Hyperlink.Click="Hyperlink_OnClick" Focusable="False"/>
                         </StackPanel>
                     </Border>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding Mine}" Value="False">
                             <Setter TargetName="messageborder" Property="Margin" Value="50 3 3 3"/>
                             <Setter TargetName="messageborder" Property="CornerRadius" Value="5 5 5 0"/>
-                            <Setter TargetName="messageborder" Property="Background" Value="#6CCBEB"></Setter>
+                            <Setter TargetName="messageborder" Property="Background" Value="#B8E3F1"></Setter>
                             <Setter TargetName="messageborder" Property="HorizontalAlignment" Value="Right"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Mine}" Value="True">
                             <Setter TargetName="messageborder" Property="Margin" Value="3 3 40 3"/>
                             <Setter TargetName="messageborder" Property="CornerRadius" Value="5 5 0 5"/>
-                            <Setter TargetName="messageborder" Property="Background" Value="#6CEB79"></Setter>
+                            <Setter TargetName="messageborder" Property="Background" Value="#B4EDBA"></Setter>
                             <Setter TargetName="messageborder" Property="HorizontalAlignment" Value="Left"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ShowImage}" Value="True">
@@ -54,11 +63,10 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-
-        <DockPanel Grid.Row="1">
+        <DockPanel Grid.Row="2">
             <Button Content="Send" DockPanel.Dock="Right" Margin="5" Command="{Binding SendMessageCommand}" IsTabStop="False"/>
             <Button Content="📸" DockPanel.Dock="Right" Margin="5" Command="{Binding SendImageCommand}" IsTabStop="False"/>
-            <Button Content="🤖" DockPanel.Dock="Right" Margin="5" Command="{Binding MakePlayerCommand}" IsTabStop="False"/>
+            <Button Content="🤖" DockPanel.Dock="Right" Margin="5" Command="{Binding MakePlayerCommand}" Visibility="{Binding HasRunMakePlayerCommand, Converter={x:Static desktopClient:VisibilityConverters.IsFalse}}" IsTabStop="False"/>
             <TextBlock Text="{Binding AdminText}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
             <TextBox Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" Margin="5" MaxLines="1"
                      AcceptsReturn="False">

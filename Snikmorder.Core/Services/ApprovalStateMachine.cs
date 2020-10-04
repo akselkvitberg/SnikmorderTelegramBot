@@ -38,6 +38,18 @@ namespace Snikmorder.Core.Services
 
             var fromId = message.From.Id;
 
+            #if DEBUG
+            if (message.Text == "/all")
+            {
+                foreach (var player in playersWaitingForApproval)
+                {
+                    player.State = PlayerState.WaitingForGameStart;
+                    _sender.SendMessage(player, string.Format(Messages.ApplicationApproved, player.AgentName));
+                }
+                playersWaitingForApproval.Clear();
+            }
+            #endif
+
             var text = message.Text.ToLower();
             if (ApprovalState.ContainsKey(fromId))
             {
@@ -58,7 +70,7 @@ namespace Snikmorder.Core.Services
                 }
                 else
                 {
-                    _sender.SendMessage(fromId, "Forsto ikke meldingen. Send /godkjenn eller /forkast");
+                    _sender.SendMessage(fromId, Messages.UnknownApprovalMessage);
                 }
             }
             else
@@ -66,7 +78,7 @@ namespace Snikmorder.Core.Services
                 switch (text)
                 {
                     case "/hjelp":
-                        _sender.SendMessage(fromId, "Kommandoer:\n/neste\n/status\n/begynn");
+                        _sender.SendMessage(fromId, Messages.ApprovalHelp);
                         return;
                     case "/status" when !_game.IsStarted:
                         int waitingPlayers = _playerRepository.GetWaitingPlayerCount();
@@ -85,7 +97,7 @@ namespace Snikmorder.Core.Services
                         return;
                     case "/begynn":
                         int waitingPlayers2 = _playerRepository.GetWaitingPlayerCount();
-                        _sender.SendMessage(fromId, $"Det er {waitingPlayers2} agenter som venter på start.\nEr du sikker på at du vil starte spillet?\n/JA/NEI");
+                        _sender.SendMessage(fromId, $"Det er {waitingPlayers2} agenter som venter på start.\nEr du sikker på at du vil starte spillet?\n/Ja - Starter spillet\n/Nei - utsett start");
                         _game.PreStart = true;
                         return;
                     case "/ja" when _game.PreStart:
@@ -109,7 +121,7 @@ namespace Snikmorder.Core.Services
             else
             {
                 ApprovalState.Remove(fromId);
-                _sender.SendMessage(fromId, "Ingen agenter til godkjenning.");
+                _sender.SendMessage(fromId, "Det er ingen agenter til godkjenning.\nSend /begynn for å starte spillet.");
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using Snikmorder.DesktopClient.GameMock;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 
 namespace Snikmorder.DesktopClient.Controls
 {
@@ -22,6 +23,15 @@ namespace Snikmorder.DesktopClient.Controls
                 };
             }
         }
+
+        private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is TelegramMockUser user && e.Source is Hyperlink hyperlink)
+            {
+                user.InputText = hyperlink.Tag as string;
+                user.SendMessageCommand.Execute(null);
+            }
+        }
     }
 
     public static class Extensions
@@ -40,5 +50,4 @@ namespace Snikmorder.DesktopClient.Controls
             control.ScrollIntoView(item);
         }
     }
-
 }

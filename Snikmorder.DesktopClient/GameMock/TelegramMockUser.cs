@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Snikmorder.DesktopClient.Annotations;
 using Snikmorder.DesktopClient.Utilities;
@@ -14,9 +16,14 @@ namespace Snikmorder.DesktopClient.GameMock
             _gameHostService = gameHostService;
             UserId = userId;
             IsAdmin = isAdmin;
-            InputText = IsAdmin ? "/neste" : "/start";
+            InputText = IsAdmin ? "/neste" : "";
 
-            OnExecuteMakePlayerCommand(null);
+            if(!isAdmin)
+                OnExecuteMakePlayerCommand(null);
+            else
+            {
+                HasRunMakePlayerCommand = true; // disable button for admin - does nothing
+            }
         }
 
         public int UserId { get; set; }
@@ -26,7 +33,7 @@ namespace Snikmorder.DesktopClient.GameMock
 
         public ObservableCollection<TelegramMockMessage> Messages { get; } = new ObservableCollection<TelegramMockMessage>();
 
-        private string _inputText = "/start";
+        private string _inputText = "";
 
         public string InputText
         {
@@ -89,14 +96,62 @@ namespace Snikmorder.DesktopClient.GameMock
 
         #region MakePlayerCommand
 
-        private bool hasMakedPlayerCommand = false;
+        private bool _hasRunMakePlayerCommand;
+
+        public bool HasRunMakePlayerCommand
+        {
+            get { return _hasRunMakePlayerCommand; }
+            set
+            {
+                if (value != _hasRunMakePlayerCommand)
+                {
+                    _hasRunMakePlayerCommand = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+
+        private string _playerName;
+
+        public string PlayerName
+        {
+            get { return _playerName; }
+            set
+            {
+                if (value != _playerName)
+                {
+                    _playerName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string _agentName;
+
+        public string AgentName
+        {
+            get { return _agentName; }
+            set
+            {
+                if (value != _agentName)
+                {
+                    _agentName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        
+
         private RelayCommand _makePlayerCommand;
 
         public RelayCommand MakePlayerCommand => _makePlayerCommand ??= new RelayCommand(OnExecuteMakePlayerCommand, OnCanExecuteMakePlayerCommand);
 
         private async void OnExecuteMakePlayerCommand(object o)
         {
-            hasMakedPlayerCommand = true;
+            HasRunMakePlayerCommand = true;
 
             async Task Send(string msg)
             {
@@ -107,7 +162,13 @@ namespace Snikmorder.DesktopClient.GameMock
 
             await Send("/start");
             await Send("/nySøknad");
-            await Send(RandomData.GetRandomName());
+            var randomName = RandomData.GetRandomName();
+            PlayerName = randomName;
+            await Send(randomName);
+            //Regex match = new Regex("agentnavnet Agent (\\w+)");
+            var matchCollection = Regex.Matches(Messages.LastOrDefault()?.Message ?? "", "agentnavnet Agent (\\w+)");
+            AgentName = matchCollection.Last().Groups.Values.Last().Value;
+            Messages.Last().Message.IndexOf("agentnavnet Agent");
             await Send("/ok");
             Messages.Add(new TelegramMockMessage(null, true, $"https://api.adorable.io/avatars/128/Agent{UserId}.png"));
             _gameHostService.SendMessage(UserId, "", $"https://api.adorable.io/avatars/128/Agent{UserId}.png");
@@ -117,7 +178,7 @@ namespace Snikmorder.DesktopClient.GameMock
 
         private bool OnCanExecuteMakePlayerCommand(object o)
         {
-            return !hasMakedPlayerCommand;
+            return !HasRunMakePlayerCommand;
         }
 
         #endregion

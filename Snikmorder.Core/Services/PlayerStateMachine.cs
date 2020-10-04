@@ -130,14 +130,25 @@ namespace Snikmorder.Core.Services
         {
             if (TextIsEmpty(player, message)) return;
 
-            // If player sends /ok, keep temporary agent name
-            if (!string.Equals(message.Text, "/ok", StringComparison.InvariantCultureIgnoreCase))
-            {
-                if (message.Text.ToLower().Contains("agent"))
-                    player.AgentName = message.Text.Replace("agent", "").Trim();
+            var text = message.Text.ToLower().Trim();
 
-                else
-                    player.AgentName = message.Text;
+            // If player sends /ok, keep temporary agent name
+            if(text != "/ok")
+            {
+                if (text.Contains("agent"))
+                {
+                    text = text.Replace("agent", "").Trim();
+                }
+
+                if (text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length >= 1)
+                {
+                    _sender.SendMessage(player, $"Agentnavn kan ikke ha mellomrom. Prøv igjen, eller send /ok for å bruke {player.AgentName} som ditt agentnavn");
+                    return;
+                }
+
+                var capitalized = text[0].ToString().ToUpper() + text[1..];
+
+                player.AgentName = capitalized;
             }
             player.State = PlayerState.GivingSelfie;
             var requestSelfie = string.Format(Messages.RequestSelfie, player.AgentName);
@@ -152,10 +163,13 @@ namespace Snikmorder.Core.Services
                 return;
             }
 
-            var confirmApplication = string.Format(Messages.ConfirmApplication, player.PlayerName, player.AgentName);
-            _sender.SendMessage(player, confirmApplication);
+            
             player.PictureId = message.Photo.OrderByDescending(x => x.Height).FirstOrDefault()?.FileId;
             player.State = PlayerState.ConfirmApplication;
+
+            var confirmApplication = string.Format(Messages.ConfirmApplication, player.PlayerName, player.AgentName);
+            _sender.SendMessage(player, confirmApplication);
+
         }
 
         private void HandleConfirmApplication(Player player, Message message)
@@ -188,41 +202,39 @@ namespace Snikmorder.Core.Services
         private bool HandleGenericActiveState(Player player, Message message)
         {
             var text = message.Text.ToLower();
-            
+
             switch (text)
             {
-                case "/info":
-                    _sender.SendMessage(player, "PLAYER INFO");
+                case "/hjelp":
+                    _sender.SendMessage(player, Messages.PlayerHelp);
                     return true;
                 case "/regler":
-                    _sender.SendMessage(player, "REGLER");
+                    _sender.SendMessage(player, Messages.GameRulesEliminate);
+                    _sender.SendMessage(player, Messages.GameRulesReveal);
                     return true;
-                case "/status":
-                    _sender.SendMessage(player, "Player score");
-                    return true;
-                case "/mål":
-                    _sender.SendMessage(player, "Current target");
+                case "/info":
+                    var target = _playerRepository.GetPlayer(player.TargetId);
+                    _sender.SendImage(player, string.Format(Messages.PlayerInfo, player.AgentName, target?.PlayerName), target?.PictureId);
                     return true;
                 default:
                     return false;
             }
         }
-        
+
         private void HandleActiveState(Player player, Message message)
         {
             if (TextIsEmpty(player, message)) return;
 
             if(message.Text.ToLower().StartsWith("/eliminer")) // eliminer er litt vanskelig å skrive... bedre ord?
             {
-                _sender.SendMessage(player, Messages.ConfirmKill);
+                _sender.SendMessage(player, "Bekreft elimineringen ved å skrive inn det hemmelige agent-navnet til målet ditt.");
                 player.State = PlayerState.ConfirmKill;
             }
             else if (message.Text.ToLower().StartsWith("/avslør"))
             {
-                _sender.SendMessage(player, "Bekreft agent navn");
+                _sender.SendMessage(player, "Bekreft avsløringen ved å skrive inn det hemmelige agent-navnet til agenten.");
                 player.State = PlayerState.ReportingKilling;
             }
-            
         }
 
         private void HandleConfirmKill(Player player, Message message)
@@ -231,7 +243,7 @@ namespace Snikmorder.Core.Services
 
             if (message.Text.ToLower() == "/avbryt")
             {
-                _sender.SendMessage(player, "Avbrutt");
+                _sender.SendMessage(player, "Elimineringen er avbrutt");
                 player.State = PlayerState.Active;
                 return;
             }
@@ -257,7 +269,7 @@ namespace Snikmorder.Core.Services
             // No spaces
             if (agentName.Contains(' '))
             {
-                _sender.SendMessage(player, "Alle agentnavn er bare et ord. Prøv igjen.");
+                _sender.SendMessage(player, "Alle agentnavn består bare av et ord. Prøv igjen.");
                 return;
             }
 
@@ -266,7 +278,7 @@ namespace Snikmorder.Core.Services
             if (agentName != targetAgentName)
             {
                 player.State = PlayerState.Active;
-                _sender.SendMessage(player, "BEKLAGER FEIL AGENT NAVN. AVBRUTT");
+                _sender.SendMessage(player, "Dette var ikke riktig agent-navn. Du har enten feil mål eller feil agent-navn.\nKontakt HQ hvis du mener dette er feil.");
                 return;
             }
 
@@ -274,15 +286,11 @@ namespace Snikmorder.Core.Services
             target.State = PlayerState.Killed; // todo: Save
             var newTarget = _playerRepository.GetPlayer(target.TargetId);
             player.TargetId = target.TargetId;
-            
-            _sender.SendMessage(target, "Beklager du er ute av spillet.");
+
+            _sender.SendMessage(target, "Beklager, du er ute av spillet.");
             if (newTarget != null)
             {
-                _sender.SendImage(player, "Nytt mål: osv osv osv", newTarget.PictureId);
-            }
-            else
-            {
-                // todo: Error?
+                _sender.SendImage(player, string.Format(Messages.NextTarget, newTarget.PlayerName), newTarget.PictureId);
             }
         }
 
@@ -292,7 +300,7 @@ namespace Snikmorder.Core.Services
 
             if (message.Text.ToLower() == "/avbryt")
             {
-                _sender.SendMessage(player, "Avbrutt");
+                _sender.SendMessage(player, "Avsløring avbrutt.");
                 player.State = PlayerState.Active;
                 return;
             }
@@ -301,23 +309,37 @@ namespace Snikmorder.Core.Services
 
             agentName = agentName.Replace("agent", "").Trim();
 
-            var target = _playerRepository.GetPlayerByAgentName(agentName);
+            var agent = _playerRepository.GetPlayerByAgentName(agentName);
 
-            if (target != null)
-            {
-                target.State = PlayerState.Killed; //todo save
-                throw new NotImplementedException(); // TODO: START PROCESS TO KILL TARGET, AND ASSIGN NEW TARGET TO TARGET'S HUNTER
-            }
-            else
+            if (agent == null)
             {
                 player.State = PlayerState.Active;
-                _sender.SendMessage(player, "BEKLAGER FEIL AGENT NAVN. AVBRUTT");
+                _sender.SendMessage(player, "Det finnes ingen agenter med dette navnet. Avsløringen er avbrutt.");
+                return;
             }
+
+            agent.State = PlayerState.Killed; //todo save
+            var newTarget = _playerRepository.GetPlayer(agent.TargetId);
+            var hunter = _playerRepository.GetHunter(agent.TelegramChatId);
+
+            if (hunter == null || newTarget == null)
+            {
+                //todo what?
+                throw new NullReferenceException();
+            }
+
+            hunter.TargetId = newTarget.TargetId;
+
+            player.State = PlayerState.Active;
+
+            _sender.SendMessage(player, $"Agent {agent.AgentName} ble avslørt og er ute av spllet!");
+            _sender.SendMessage(agent, "Beklager, du ble avslørt og er ute av spillet.");
+            _sender.SendImage(hunter, string.Format(Messages.NextTarget, newTarget.PlayerName), newTarget.PictureId);
         }
 
         private void HandleKilled(Player player, Message message)
         {
-            _sender.SendMessage(player, "Beklager, du er død");
+            _sender.SendMessage(player, "Beklager, du er død, og døde agenter kan ikke gjøre noe.\nKontakt HQ hvis du mener dette er feil.");
         }
 
         private bool TextIsEmpty(Player player, Message message)

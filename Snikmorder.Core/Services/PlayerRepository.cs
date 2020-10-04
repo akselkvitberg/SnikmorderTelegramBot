@@ -50,5 +50,10 @@ namespace Snikmorder.Core.Services
         {
             return players.Where(x => x.State == PlayerState.WaitingForGameStart).ToList();
         }
+
+        public Player? GetHunter(long telegramId)
+        {
+            return players.FirstOrDefault(x => x.TargetId == telegramId);
+        }
     }
 }

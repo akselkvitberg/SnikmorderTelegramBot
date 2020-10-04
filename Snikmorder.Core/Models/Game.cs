@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Snikmorder.Core.Resources;
 using Snikmorder.Core.Services;
 
 namespace Snikmorder.Core.Models
@@ -34,7 +35,7 @@ namespace Snikmorder.Core.Models
             {
                 tuple.First.TargetId = tuple.Second.TelegramUserId;
                 tuple.First.State = PlayerState.Active;
-                _sender.SendImage(tuple.First, $"Ditt første mål er:\n{tuple.Second.PlayerName}", tuple.Second.PictureId);
+                _sender.SendImage(tuple.First, string.Format(Messages.FirstTarget, tuple.Second.PlayerName), tuple.Second.PictureId);
             }
         }
     }
