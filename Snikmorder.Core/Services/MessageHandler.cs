@@ -4,20 +4,20 @@ namespace Snikmorder.Core.Services
 {
     public class MessageHandler
     {
-        private readonly ApprovalStateMachine _approvalStateMachine;
+        private readonly AdminStateMachine _adminStateMachine;
         private readonly PlayerStateMachine _playerStateMachine;
 
-        public MessageHandler(ApprovalStateMachine approvalStateMachine, PlayerStateMachine playerStateMachine)
+        public MessageHandler(AdminStateMachine adminStateMachine, PlayerStateMachine playerStateMachine)
         {
-            _approvalStateMachine = approvalStateMachine;
+            _adminStateMachine = adminStateMachine;
             _playerStateMachine = playerStateMachine;
         }
 
         public void OnMessage(Message message)
         {
-            if (_approvalStateMachine.IsFromAdmin(message))
+            if (_adminStateMachine.IsFromAdmin(message))
             {
-                _approvalStateMachine.HandleAdminMessage(message);
+                _adminStateMachine.HandleAdminMessage(message);
             }
             else
             {

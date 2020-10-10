@@ -19,7 +19,7 @@ namespace Snikmorder.Core.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Messages {
@@ -93,7 +93,7 @@ namespace Snikmorder.Core.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to Send /neste for å få neste agent til godkjenning.
-        ///Send /godjenn for å godkjenne agenten.
+        ///Send /godkjenn for å godkjenne agenten.
         ///Send /forkast for å forkaste søknaden.
         ///Send /status for å antall ventende spillere
         ///Send /begynn for å starte spillet.
@@ -150,7 +150,11 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Ditt nye mål er:
+        ///{0}
+        ///
+        ///For å eliminere målet må du viske &quot;Du er død&quot; til agenten.
+        ///Agenten må da svare deg med sitt hemmelige Agent navn, som du sender oss ved å skrive /eliminer, og så navnet..
         /// </summary>
         internal static string NextTarget {
             get {

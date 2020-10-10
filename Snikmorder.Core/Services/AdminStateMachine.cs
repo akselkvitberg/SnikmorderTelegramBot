@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Resources;
 using Telegram.Bot.Types;
@@ -6,7 +8,7 @@ using Game = Snikmorder.Core.Models.Game;
 
 namespace Snikmorder.Core.Services
 {
-    public class ApprovalStateMachine
+    public class AdminStateMachine
     {
         private readonly ITelegramSender _sender;
         private readonly PlayerRepository _playerRepository;
@@ -15,7 +17,7 @@ namespace Snikmorder.Core.Services
 
         Dictionary<int, Player> ApprovalState = new Dictionary<int, Player>();
 
-        public ApprovalStateMachine(ITelegramSender sender, PlayerRepository playerRepository, Game game)
+        public AdminStateMachine(ITelegramSender sender, PlayerRepository playerRepository, Game game)
         {
             _sender = sender;
             _playerRepository = playerRepository;
@@ -34,10 +36,44 @@ namespace Snikmorder.Core.Services
 
         public void HandleAdminMessage(Message message)
         {
-            // Handle messages such as "approve application"
-
             var fromId = message.From.Id;
 
+            if (_game.State == GameState.Started)
+            {
+                switch (message.Text.ToLower())
+                {
+                    case "/hjelp":
+                        _sender.SendMessage(fromId, "Kommandoer:\n/status - se hvor mange agenter som er i spill\n/oppdrag - se hvilke mål hver agent har");
+                        return;
+                    case "/status":
+                        int activePlayers = _playerRepository.GetActivePlayerCount();
+                        int deadPlayers = _playerRepository.GetDeadPlayerCount();
+                        _sender.SendMessage(fromId, $"Det er {activePlayers} agenter i spill.\nDet er {deadPlayers} døde agenter.");
+                        return;
+                    case "/oppdrag":
+                        return;
+                }
+                return;
+            }
+
+            if (_game.State == GameState.Ended)
+            {
+                if (message.Text.ToLower() == "/restart")
+                {
+                    _game.State = GameState.NotStarted;
+                    _playerRepository.Reset();
+                }
+                return;
+            }
+
+            switch (message.Text)
+            {
+                
+            }
+            
+            
+            
+            // Handle messages such as "approve application"
             #if DEBUG
             if (message.Text == "/all")
             {
@@ -47,6 +83,7 @@ namespace Snikmorder.Core.Services
                     _sender.SendMessage(player, string.Format(Messages.ApplicationApproved, player.AgentName));
                 }
                 playersWaitingForApproval.Clear();
+                _sender.SendMessage(fromId, "Det er ingen agenter til godkjenning.\nSend /begynn for å starte spillet.");
             }
             #endif
 
@@ -56,10 +93,26 @@ namespace Snikmorder.Core.Services
                 // Approval status
                 var player = ApprovalState[fromId];
 
+                if (text == "/neste")
+                {
+                    playersWaitingForApproval.Enqueue(player);
+                    GetNextForApproval(fromId);
+                    return;
+                }
+
                 if (text == "/godkjenn")
                 {
                     player.State = PlayerState.WaitingForGameStart;
-                    _sender.SendMessage(player, string.Format(Messages.ApplicationApproved, player.AgentName));
+                    Task.Factory.StartNew(async () =>
+                    {
+                        _sender.SendMessage(player, string.Format(Messages.ApplicationApproved, player.AgentName));
+                        await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(true);
+                        _sender.SendMessage(player, Messages.GameRulesEliminate);
+                        await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(true);
+                        _sender.SendMessage(player, Messages.GameRulesReveal);
+                    });
+                    
+
                     GetNextForApproval(fromId);
                 }
                 else if (text == "/forkast")
@@ -80,14 +133,9 @@ namespace Snikmorder.Core.Services
                     case "/hjelp":
                         _sender.SendMessage(fromId, Messages.ApprovalHelp);
                         return;
-                    case "/status" when !_game.IsStarted:
+                    case "/status" when _game.State < GameState.Started:
                         int waitingPlayers = _playerRepository.GetWaitingPlayerCount();
                         _sender.SendMessage(fromId, $"Det er {waitingPlayers} agenter som venter på start.\n{playersWaitingForApproval.Count} agenter som venter på godkjenning.");
-                        return;
-                    case "/status":
-                        int activePlayers = _playerRepository.GetActivePlayerCount();
-                        int deadPlayers = _playerRepository.GetDeadPlayerCount();
-                        _sender.SendMessage(fromId, $"Det er {activePlayers} agenter i spill.\nDet er {deadPlayers} døde agenter.");
                         return;
                     case "/neste":
                         GetNextForApproval(fromId);
@@ -97,15 +145,22 @@ namespace Snikmorder.Core.Services
                         return;
                     case "/begynn":
                         int waitingPlayers2 = _playerRepository.GetWaitingPlayerCount();
-                        _sender.SendMessage(fromId, $"Det er {waitingPlayers2} agenter som venter på start.\nEr du sikker på at du vil starte spillet?\n/Ja - Starter spillet\n/Nei - utsett start");
-                        _game.PreStart = true;
+                        if (waitingPlayers2 > 3)
+                        {
+                            _sender.SendMessage(fromId, $"Det er {waitingPlayers2} agenter som venter på start.\nEr du sikker på at du vil starte spillet?\n/Ja - Starter spillet\n/Nei - utsett start");
+                            _game.State = GameState.PreStart;
+                        }
+                        else
+                        {
+                            _sender.SendMessage(fromId, "Det er ikke nok spillere til å starte spillet. Det må være minst 3 spillere.");
+                        }
                         return;
-                    case "/ja" when _game.PreStart:
+                    case "/ja" when _game.State == GameState.PreStart:
                         _sender.SendMessage(fromId, $"Spillet er startet!");
                         _game.StartGame();
                         return;
-                    case "/nei" when _game.PreStart:
-                        _game.PreStart = false;
+                    case "/nei" when _game.State == GameState.PreStart:
+                        _game.State = GameState.NotStarted;
                         return;
                 }
             }

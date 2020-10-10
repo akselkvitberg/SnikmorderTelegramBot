@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Snikmorder.Core.Models;
 using Snikmorder.Core.Services;
 using Telegram.Bot;
 
@@ -34,9 +35,12 @@ namespace SnikmorderTelegramBot
             });
 
             services.AddScoped<MessageHandler>();
-            services.AddScoped<ApprovalStateMachine>();
+            services.AddScoped<AdminStateMachine>();
             services.AddScoped<TelegramSender>();
             services.AddScoped<PlayerStateMachine>();
+            services.AddScoped<Game>();
+            services.AddScoped<PlayerRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

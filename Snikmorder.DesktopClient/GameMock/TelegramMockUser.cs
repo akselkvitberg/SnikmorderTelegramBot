@@ -1,9 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using Snikmorder.DesktopClient.Annotations;
 using Snikmorder.DesktopClient.Utilities;
 
@@ -16,13 +18,16 @@ namespace Snikmorder.DesktopClient.GameMock
             _gameHostService = gameHostService;
             UserId = userId;
             IsAdmin = isAdmin;
-            InputText = IsAdmin ? "/neste" : "";
 
-            if(!isAdmin)
+            if (!isAdmin)
+            {
                 OnExecuteMakePlayerCommand(null);
+            }
             else
             {
                 HasRunMakePlayerCommand = true; // disable button for admin - does nothing
+
+                Dispatcher.CurrentDispatcher.BeginInvoke((Action)(() => _gameHostService.SendMessage(userId, "/hjelp")));
             }
         }
 
@@ -83,7 +88,7 @@ namespace Snikmorder.DesktopClient.GameMock
 
         private RelayCommand _sendImageCommand;
 
-        public RelayCommand SendImageCommand => _sendImageCommand ??= new RelayCommand(OnExecuteSendImageCommand);
+        public RelayCommand SendImageCommand => _sendImageCommand ??= new RelayCommand(OnExecuteSendImageCommand, o => !IsAdmin);
 
         private void OnExecuteSendImageCommand(object o)
         {
@@ -168,7 +173,6 @@ namespace Snikmorder.DesktopClient.GameMock
             //Regex match = new Regex("agentnavnet Agent (\\w+)");
             var matchCollection = Regex.Matches(Messages.LastOrDefault()?.Message ?? "", "agentnavnet Agent (\\w+)");
             AgentName = matchCollection.Last().Groups.Values.Last().Value;
-            Messages.Last().Message.IndexOf("agentnavnet Agent");
             await Send("/ok");
             Messages.Add(new TelegramMockMessage(null, true, $"https://api.adorable.io/avatars/128/Agent{UserId}.png"));
             _gameHostService.SendMessage(UserId, "", $"https://api.adorable.io/avatars/128/Agent{UserId}.png");

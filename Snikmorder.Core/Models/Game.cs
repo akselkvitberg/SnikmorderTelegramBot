@@ -17,12 +17,11 @@ namespace Snikmorder.Core.Models
             _sender = sender;
         }
 
-        public bool IsStarted { get; set; }
-        public bool PreStart { get; set; }
+        public GameState State { get; set; }
 
         public void StartGame()
         {
-            IsStarted = true;
+            State = GameState.Started;
 
             var allWaitingPlayers = _playerRepository.GetAllWaitingPlayers();
 
@@ -38,5 +37,29 @@ namespace Snikmorder.Core.Models
                 _sender.SendImage(tuple.First, string.Format(Messages.FirstTarget, tuple.Second.PlayerName), tuple.Second.PictureId);
             }
         }
+
+        public void EndWithWinners(Player player1, Player player2)
+        {
+            player1.State = PlayerState.Winner;
+            player2.State = PlayerState.Winner;
+
+            _sender.SendMessage(player1, "Gratulerer! Du kom på førsteplass!");
+            _sender.SendMessage(player2, "Gratulerer! Du kom på andreplass!");
+
+            var allPlayersInGame = _playerRepository.GetAllPlayersInGame();
+
+            foreach (var player in allPlayersInGame)
+            {
+                _sender.SendMessage(player, $"Spillet er over! {player1.PlayerName} og {player2.PlayerName} er vinnerne!");
+            }
+        }
+    }
+
+    public enum GameState
+    {
+        NotStarted,
+        PreStart,
+        Started,
+        Ended,
     }
 }

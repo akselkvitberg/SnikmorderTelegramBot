@@ -20,5 +20,7 @@
         
         Killed,
         
+        Winner,
+        
     }
 }

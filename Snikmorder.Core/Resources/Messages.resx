@@ -172,7 +172,7 @@ Send /forkast for å forkaste søknaden.</value>
   </data>
   <data name="ApprovalHelp" xml:space="preserve">
     <value>Send /neste for å få neste agent til godkjenning.
-Send /godjenn for å godkjenne agenten.
+Send /godkjenn for å godkjenne agenten.
 Send /forkast for å forkaste søknaden.
 Send /status for å antall ventende spillere
 Send /begynn for å starte spillet</value>

@@ -96,7 +96,6 @@ namespace Snikmorder.Core.Services
             "Frankrike",
             "Frosk",
             "Fruktsalat",
-            "Garderobemann",
             "Gartner",
             "Gastronom",
             "Gladiator",

@@ -50,10 +50,29 @@ namespace Snikmorder.Core.Services
         {
             return players.Where(x => x.State == PlayerState.WaitingForGameStart).ToList();
         }
+        
+        public List<Player> GetAllPlayersInGame()
+        {
+            return players.Where(x => x.State > PlayerState.WaitingForGameStart).ToList();
+        }
+        
+        public List<Player> GetAllPlayersActive()
+        {
+            return players.Where(x => x.IsActive).ToList();
+        }
 
         public Player? GetHunter(long telegramId)
         {
-            return players.FirstOrDefault(x => x.TargetId == telegramId);
+            return players.FirstOrDefault(x => x.IsActive &&  x.TargetId == telegramId);
+        }
+
+        public void Reset()
+        {
+            foreach (var player in players)
+            {
+                player.State = PlayerState.Started;
+                player.TargetId = 0;
+            }
         }
     }
 }

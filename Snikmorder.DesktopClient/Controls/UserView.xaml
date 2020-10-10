@@ -44,16 +44,16 @@
                     </Border>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding Mine}" Value="False">
-                            <Setter TargetName="messageborder" Property="Margin" Value="50 3 3 3"/>
+                            <Setter TargetName="messageborder" Property="Margin" Value="3 3 50 3"/>
                             <Setter TargetName="messageborder" Property="CornerRadius" Value="5 5 5 0"/>
                             <Setter TargetName="messageborder" Property="Background" Value="#B8E3F1"></Setter>
-                            <Setter TargetName="messageborder" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="messageborder" Property="HorizontalAlignment" Value="Left"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Mine}" Value="True">
-                            <Setter TargetName="messageborder" Property="Margin" Value="3 3 40 3"/>
+                            <Setter TargetName="messageborder" Property="Margin" Value="40 3 3 3"/>
                             <Setter TargetName="messageborder" Property="CornerRadius" Value="5 5 0 5"/>
                             <Setter TargetName="messageborder" Property="Background" Value="#B4EDBA"></Setter>
-                            <Setter TargetName="messageborder" Property="HorizontalAlignment" Value="Left"/>
+                            <Setter TargetName="messageborder" Property="HorizontalAlignment" Value="Right"/>
                         </DataTrigger>
                         <DataTrigger Binding="{Binding ShowImage}" Value="True">
                             <Setter TargetName="img" Property="Source" Value="{Binding ImagePath}"/>

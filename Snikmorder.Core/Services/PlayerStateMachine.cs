@@ -12,14 +12,14 @@ namespace Snikmorder.Core.Services
     {
         private readonly ITelegramSender _sender;
         private readonly PlayerRepository _playerRepository;
-        private readonly ApprovalStateMachine _approvalStateMachine;
+        private readonly AdminStateMachine _adminStateMachine;
         private readonly Game _game;
 
-        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository, ApprovalStateMachine approvalStateMachine, Game game)
+        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository, AdminStateMachine adminStateMachine, Game game)
         {
             _sender = sender;
             _playerRepository = playerRepository;
-            _approvalStateMachine = approvalStateMachine;
+            _adminStateMachine = adminStateMachine;
             _game = game;
         }
 
@@ -33,13 +33,17 @@ namespace Snikmorder.Core.Services
                 player = HandleNewPlayer(message);
             }
 
-
-            if (_game.IsStarted && player.State < PlayerState.Active)
+            if (_game.State == GameState.Ended)
+            {
+                _sender.SendMessage(player, "Spillet er over.");
+                return;
+            }
+            
+            if (_game.State >= GameState.Started && player.State < PlayerState.Active)
             {
                 _sender.SendMessage(player, "Spillet er allerede i gang. Du rakk desverre ikke å bli med.");
                 return;
             }
-
 
             if (player.State < PlayerState.WaitingForAdminApproval && string.Equals(message.Text, "/nysøknad", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -183,7 +187,7 @@ namespace Snikmorder.Core.Services
                 return;
             }
 
-            _approvalStateMachine.AddApplication(player);
+            _adminStateMachine.AddApplication(player);
 
             _sender.SendMessage(player, Messages.ApplicationRegistered);
             player.State = PlayerState.WaitingForAdminApproval;
@@ -225,15 +229,36 @@ namespace Snikmorder.Core.Services
         {
             if (TextIsEmpty(player, message)) return;
 
-            if(message.Text.ToLower().StartsWith("/eliminer")) // eliminer er litt vanskelig å skrive... bedre ord?
+            var text = message.Text.ToLower();
+
+            var strings = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            
+
+            if(strings[0] == "/eliminer") // eliminer er litt vanskelig å skrive... bedre ord?
             {
-                _sender.SendMessage(player, "Bekreft elimineringen ved å skrive inn det hemmelige agent-navnet til målet ditt.");
-                player.State = PlayerState.ConfirmKill;
+                if (strings.Length > 1)
+                {
+                    message.Text = string.Join(" ", strings[1..]);
+                    HandleConfirmKill(player, message);
+                }
+                else
+                {
+                    _sender.SendMessage(player, "Bekreft elimineringen ved å skrive inn det hemmelige agent-navnet til målet ditt.");
+                    player.State = PlayerState.ConfirmKill;
+                }
             }
-            else if (message.Text.ToLower().StartsWith("/avslør"))
+            else if (strings[0] == ("/avslør"))
             {
-                _sender.SendMessage(player, "Bekreft avsløringen ved å skrive inn det hemmelige agent-navnet til agenten.");
-                player.State = PlayerState.ReportingKilling;
+                if (strings.Length > 1)
+                {
+                    message.Text = string.Join(" ", strings[1..]);
+                    HandleReportingKilling(player, message);
+                }
+                else
+                {
+                    _sender.SendMessage(player, "Bekreft avsløringen ved å skrive inn det hemmelige agent-navnet til agenten.");
+                    player.State = PlayerState.ReportingKilling;
+                }
             }
         }
 
@@ -284,10 +309,20 @@ namespace Snikmorder.Core.Services
 
             player.State = PlayerState.Active;
             target.State = PlayerState.Killed; // todo: Save
+            _sender.SendMessage(target, "Beklager, du er ute av spillet.");
+            _sender.SendMessage(player, $"Agent {target.AgentName} er bekreftet eliminert!");
+
             var newTarget = _playerRepository.GetPlayer(target.TargetId);
+
+            if (newTarget.TargetId == player.TelegramUserId)
+            {
+                // Win state
+                _game.EndWithWinners(player, newTarget);
+                return;
+            }
+
             player.TargetId = target.TargetId;
 
-            _sender.SendMessage(target, "Beklager, du er ute av spillet.");
             if (newTarget != null)
             {
                 _sender.SendImage(player, string.Format(Messages.NextTarget, newTarget.PlayerName), newTarget.PictureId);
@@ -310,17 +345,41 @@ namespace Snikmorder.Core.Services
             agentName = agentName.Replace("agent", "").Trim();
 
             var agent = _playerRepository.GetPlayerByAgentName(agentName);
-
+            
             if (agent == null)
             {
                 player.State = PlayerState.Active;
                 _sender.SendMessage(player, "Det finnes ingen agenter med dette navnet. Avsløringen er avbrutt.");
                 return;
             }
+            if (!agent.IsActive)
+            {
+                player.State = PlayerState.Active;
+                _sender.SendMessage(player, $"Agent {agent.AgentName} ({agent.PlayerName}) er allerede ute.");
+                return;
+            }
+
+            // Cannot reveal hunter
+            if (agent.TargetId == player.TelegramUserId)
+            {
+                player.State = PlayerState.Active;
+                _sender.SendMessage(player, $"Du kan ikke avsløre Agent {agent.AgentName}!");
+                return;
+            }
+
+            if (agent.TelegramUserId == player.TelegramUserId)
+            {
+                player.State = PlayerState.Active;
+                _sender.SendMessage(player, $"Du kan ikke avsløre deg selv!");
+                return;
+            }
+
+            
 
             agent.State = PlayerState.Killed; //todo save
+            
             var newTarget = _playerRepository.GetPlayer(agent.TargetId);
-            var hunter = _playerRepository.GetHunter(agent.TelegramChatId);
+            var hunter = _playerRepository.GetHunter(agent.TelegramUserId);
 
             if (hunter == null || newTarget == null)
             {
@@ -328,9 +387,16 @@ namespace Snikmorder.Core.Services
                 throw new NullReferenceException();
             }
 
-            hunter.TargetId = newTarget.TargetId;
+            hunter.TargetId = newTarget.TelegramUserId;
 
             player.State = PlayerState.Active;
+            
+            if (_playerRepository.GetActivePlayerCount() == 2)
+            {
+                // Win state
+                _game.EndWithWinners(player, newTarget);
+                return;
+            }
 
             _sender.SendMessage(player, $"Agent {agent.AgentName} ble avslørt og er ute av spllet!");
             _sender.SendMessage(agent, "Beklager, du ble avslørt og er ute av spillet.");
