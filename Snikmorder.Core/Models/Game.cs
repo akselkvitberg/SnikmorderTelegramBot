@@ -8,10 +8,10 @@ namespace Snikmorder.Core.Models
 {
     public class Game
     {
-        private readonly PlayerRepository _playerRepository;
+        private readonly IPlayerRepository _playerRepository;
         private readonly ITelegramSender _sender;
 
-        public Game(PlayerRepository playerRepository, ITelegramSender sender)
+        public Game(IPlayerRepository playerRepository, ITelegramSender sender)
         {
             _playerRepository = playerRepository;
             _sender = sender;

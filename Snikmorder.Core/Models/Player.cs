@@ -13,6 +13,5 @@
         
         public int TargetId { get; set; }
         
-        public long TelegramChatId { get; set; }
     }
 }

@@ -24,8 +24,6 @@ namespace SnikmorderTelegramBot
         {
             services.AddControllers();
             
-            services.AddSingleton<PlayerRepository>();
-
             services.AddHttpClient();
 
             services.AddScoped<ITelegramBotClient>(provider =>
@@ -39,7 +37,7 @@ namespace SnikmorderTelegramBot
             services.AddScoped<TelegramSender>();
             services.AddScoped<PlayerStateMachine>();
             services.AddScoped<Game>();
-            services.AddScoped<PlayerRepository>();
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
 
         }
 

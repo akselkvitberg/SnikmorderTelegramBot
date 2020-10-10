@@ -11,13 +11,13 @@ namespace Snikmorder.Core.Services
     public class AdminStateMachine
     {
         private readonly ITelegramSender _sender;
-        private readonly PlayerRepository _playerRepository;
+        private readonly IPlayerRepository _playerRepository;
         private readonly Game _game;
         Queue<Player> playersWaitingForApproval = new Queue<Player>();
 
         Dictionary<int, Player> ApprovalState = new Dictionary<int, Player>();
 
-        public AdminStateMachine(ITelegramSender sender, PlayerRepository playerRepository, Game game)
+        public AdminStateMachine(ITelegramSender sender, IPlayerRepository playerRepository, Game game)
         {
             _sender = sender;
             _playerRepository = playerRepository;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Threading;
-using Snikmorder.Core.Models;
 using Snikmorder.Core.Services;
 using Telegram.Bot.Types;
 using Game = Snikmorder.Core.Models.Game;
@@ -18,7 +16,11 @@ namespace Snikmorder.DesktopClient.GameMock
         public GameHostService()
         {
             var mockTelegramSender = new MockTelegramSender(this);
+
             var playerRepository = new PlayerRepository();
+
+            //var playerRepository = new MockPlayerRepository();
+
             var game = new Game(playerRepository, mockTelegramSender);
             var adminStateMachine = new AdminStateMachine(mockTelegramSender, playerRepository, game);
             var playerStateMachine = new PlayerStateMachine(mockTelegramSender, playerRepository, adminStateMachine, game);

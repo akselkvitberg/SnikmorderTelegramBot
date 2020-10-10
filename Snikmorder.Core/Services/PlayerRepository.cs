@@ -1,78 +1,76 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Snikmorder.Core.Models;
 
 namespace Snikmorder.Core.Services
 {
-    public class PlayerRepository
+    public class PlayerRepository : IPlayerRepository
     {
-        List<Player> players = new List<Player>();
 
-        public Player? GetPlayer(int telegramUserId)
+        public PlayerRepository()
         {
-            return players.FirstOrDefault(x => x.TelegramUserId == telegramUserId);
         }
 
-        public void AddPlayer(Player player)
+        public async Task AddPlayer(Player player)
         {
-            players.Add(player);
-        }
-
-        public void Save(Player player)
-        {
-            // not needed in this implementation
-        }
-
-        public Player? GetPlayerByAgentName(string agentName)
-        {
-            return players.FirstOrDefault(x => x.AgentName?.ToLower() == agentName);
-        }
-
-        public int GetWaitingPlayerCount()
-        {
-            return players.Count(x => x.State == PlayerState.WaitingForGameStart);
+            throw new NotImplementedException();
         }
 
         public int GetActivePlayerCount()
         {
-            return players.Count(x => x.State == PlayerState.Active);
-
+            throw new NotImplementedException();
         }
 
-        public int GetDeadPlayerCount()
+        public List<Player> GetAllPlayersActive()
         {
-            return players.Count(x => x.State == PlayerState.Killed);
+            throw new NotImplementedException();
+        }
 
+        public List<Player> GetAllPlayersInGame()
+        {
+            throw new NotImplementedException();
         }
 
         public List<Player> GetAllWaitingPlayers()
         {
-            return players.Where(x => x.State == PlayerState.WaitingForGameStart).ToList();
+            throw new NotImplementedException();
         }
-        
-        public List<Player> GetAllPlayersInGame()
+
+        public int GetDeadPlayerCount()
         {
-            return players.Where(x => x.State > PlayerState.WaitingForGameStart).ToList();
-        }
-        
-        public List<Player> GetAllPlayersActive()
-        {
-            return players.Where(x => x.IsActive).ToList();
+            throw new NotImplementedException();
         }
 
         public Player? GetHunter(long telegramId)
         {
-            return players.FirstOrDefault(x => x.IsActive &&  x.TargetId == telegramId);
+            throw new NotImplementedException();
+        }
+
+        public Player? GetPlayer(int telegramUserId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Player? GetPlayerByAgentName(string agentName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int GetWaitingPlayerCount()
+        {
+            throw new NotImplementedException();
         }
 
         public void Reset()
         {
-            foreach (var player in players)
-            {
-                player.State = PlayerState.Started;
-                player.TargetId = 0;
-            }
+            throw new NotImplementedException();
+        }
+
+        public void Save(Player player)
+        {
+            throw new NotImplementedException();
         }
     }
 }

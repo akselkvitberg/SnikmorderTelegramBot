@@ -11,11 +11,11 @@ namespace Snikmorder.Core.Services
     public class PlayerStateMachine
     {
         private readonly ITelegramSender _sender;
-        private readonly PlayerRepository _playerRepository;
+        private readonly IPlayerRepository _playerRepository;
         private readonly AdminStateMachine _adminStateMachine;
         private readonly Game _game;
 
-        public PlayerStateMachine(ITelegramSender sender, PlayerRepository playerRepository, AdminStateMachine adminStateMachine, Game game)
+        public PlayerStateMachine(ITelegramSender sender, IPlayerRepository playerRepository, AdminStateMachine adminStateMachine, Game game)
         {
             _sender = sender;
             _playerRepository = playerRepository;
