@@ -29,7 +29,7 @@ namespace SnikmorderTelegramBot.Controllers
                 return Ok();
             }
 
-            _messageHandler.OnMessage(message);
+            await _messageHandler.OnMessage(message);
             return Ok();
         }
     }

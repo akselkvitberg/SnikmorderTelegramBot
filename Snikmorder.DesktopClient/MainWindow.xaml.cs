@@ -27,7 +27,9 @@ namespace Snikmorder.DesktopClient
         {
             InitializeComponent();
 
-            DataContext = new GameHostService();
+            var gamehost = new GameHostService();
+            _ = gamehost.Start();
+            DataContext = gamehost;
         }
     }
 

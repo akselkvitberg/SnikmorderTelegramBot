@@ -7,16 +7,18 @@ namespace Snikmorder.Core.Services
     public interface IPlayerRepository
     {
         Task AddPlayer(Player player);
-        int GetActivePlayerCount();
-        List<Player> GetAllPlayersActive();
-        List<Player> GetAllPlayersInGame();
-        List<Player> GetAllWaitingPlayers();
-        int GetDeadPlayerCount();
-        Player? GetHunter(long telegramId);
-        Player? GetPlayer(int telegramUserId);
-        Player? GetPlayerByAgentName(string agentName);
-        int GetWaitingPlayerCount();
-        void Reset();
-        void Save(Player player);
+
+        Task<List<Player>> GetAllPlayersInState(PlayerState state);
+
+        Task<List<Player>> GetAllPlayersActive();
+        Task<List<Player>> GetAllPlayersInGame();
+        Task<Player?> GetHunter(long telegramId);
+        Task<Player?> GetPlayer(int telegramUserId);
+        Task<Player?> GetPlayerByAgentName(string agentName);
+
+        Task<Player?> GetPlayerApprovedBy(int adminId);
+
+        Task Reset();
+        Task Save();
     }
 }

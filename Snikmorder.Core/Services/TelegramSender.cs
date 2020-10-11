@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Snikmorder.Core.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -18,17 +18,30 @@ namespace Snikmorder.Core.Services
             _botClient = botClient;
         }
 
-        public void SendMessage(int id, string message) => SendMessage(new TelegramReplyMessage(id, message));
-        public void SendImage(int id, string message, string? pictureId)
+        public Task SendMessage(int id, string message) => SendMessage(new TelegramReplyMessage(id, message));
+        public async Task SendImage(int id, string message, string? pictureId)
         {
             _logger.LogDebug($"Sending image: {id}: {pictureId}");
-            _botClient.SendPhotoAsync(id, new InputMedia(pictureId), message);
+            try
+            {
+                await _botClient.SendPhotoAsync(id, new InputMedia(pictureId), message);
+            }
+            catch (Exception )
+            {
+                
+            }
         }
 
-        public Task SendMessage(TelegramReplyMessage replyMessage)
+        public async Task SendMessage(TelegramReplyMessage replyMessage)
         {
             _logger.LogDebug($"Sending message: {replyMessage.Id}: {replyMessage.Text}");
-            return _botClient.SendTextMessageAsync(replyMessage.Id, replyMessage.Text, ParseMode.MarkdownV2, replyMarkup: replyMessage.Keyboard);
+            try
+            {
+                await _botClient.SendTextMessageAsync(replyMessage.Id, replyMessage.Text, ParseMode.MarkdownV2, replyMarkup: replyMessage.Keyboard);
+            }
+            catch (Exception )
+            {
+            }
         }
     }
 }

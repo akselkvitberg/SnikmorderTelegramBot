@@ -1,4 +1,5 @@
-﻿using Telegram.Bot.Types;
+﻿using System.Threading.Tasks;
+using Telegram.Bot.Types;
 
 namespace Snikmorder.Core.Services
 {
@@ -13,15 +14,15 @@ namespace Snikmorder.Core.Services
             _playerStateMachine = playerStateMachine;
         }
 
-        public void OnMessage(Message message)
+        public async Task OnMessage(Message message)
         {
             if (_adminStateMachine.IsFromAdmin(message))
             {
-                _adminStateMachine.HandleAdminMessage(message);
+                await _adminStateMachine.HandleAdminMessage(message);
             }
             else
             {
-                _playerStateMachine.HandlePlayerMessage(message);
+                await _playerStateMachine.HandlePlayerMessage(message);
             }
         }
     }

@@ -2,75 +2,72 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Snikmorder.Core.Models;
 
 namespace Snikmorder.Core.Services
 {
     public class PlayerRepository : IPlayerRepository
     {
+        private readonly GameContext _gameContext;
 
-        public PlayerRepository()
+        public PlayerRepository(GameContext gameContext)
         {
+            _gameContext = gameContext;
         }
 
         public async Task AddPlayer(Player player)
         {
-            throw new NotImplementedException();
+            await _gameContext.Players.AddAsync(player);
         }
 
-        public int GetActivePlayerCount()
+        public async Task<List<Player>> GetAllPlayersInState(PlayerState state)
         {
-            throw new NotImplementedException();
+            return await _gameContext.Players.Where(x => x.State == state).ToListAsync();
+        }
+        
+        public async Task<List<Player>> GetAllPlayersActive()
+        {
+            return (await _gameContext.Players.ToListAsync()).Where(x => x.IsActive).ToList();
         }
 
-        public List<Player> GetAllPlayersActive()
+        public async Task<List<Player>> GetAllPlayersInGame()
         {
-            throw new NotImplementedException();
+            return (await _gameContext.Players.ToListAsync()).Where(x => x.State > PlayerState.WaitingForGameStart).ToList();
         }
 
-        public List<Player> GetAllPlayersInGame()
+        public async Task<Player?> GetHunter(long telegramId)
         {
-            throw new NotImplementedException();
+            return (await _gameContext.Players.ToListAsync()).FirstOrDefault(x => x.IsActive && x.TargetId == telegramId);
         }
 
-        public List<Player> GetAllWaitingPlayers()
+        public async Task<Player?> GetPlayer(int telegramUserId)
         {
-            throw new NotImplementedException();
+            return await _gameContext.Players.FirstOrDefaultAsync(x=>x.TelegramUserId == telegramUserId);
         }
 
-        public int GetDeadPlayerCount()
+        public async Task<Player?> GetPlayerByAgentName(string agentName)
         {
-            throw new NotImplementedException();
+            return (await _gameContext.Players.ToListAsync()).FirstOrDefault(x => x.AgentName?.ToLower() == agentName);
         }
 
-        public Player? GetHunter(long telegramId)
+        public async Task<Player> GetPlayerApprovedBy(int adminId)
         {
-            throw new NotImplementedException();
+            return await _gameContext.Players.FirstOrDefaultAsync(x => x.ApprovalId == adminId);
         }
 
-        public Player? GetPlayer(int telegramUserId)
+        public async Task Reset()
         {
-            throw new NotImplementedException();
+            foreach (var player in await _gameContext.Players.ToListAsync())
+            {
+                player.State = PlayerState.Started;
+                player.TargetId = 0;
+            }
         }
 
-        public Player? GetPlayerByAgentName(string agentName)
+        public async Task Save()
         {
-            throw new NotImplementedException();
-        }
-
-        public int GetWaitingPlayerCount()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Reset()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Save(Player player)
-        {
-            throw new NotImplementedException();
+            await _gameContext.SaveChangesAsync();
         }
     }
 }

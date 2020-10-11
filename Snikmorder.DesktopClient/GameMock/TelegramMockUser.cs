@@ -21,7 +21,7 @@ namespace Snikmorder.DesktopClient.GameMock
 
             if (!isAdmin)
             {
-                OnExecuteMakePlayerCommand(null);
+                //OnExecuteMakePlayerCommand(null);
             }
             else
             {
@@ -170,7 +170,7 @@ namespace Snikmorder.DesktopClient.GameMock
             var randomName = RandomData.GetRandomName();
             PlayerName = randomName;
             await Send(randomName);
-            //Regex match = new Regex("agentnavnet Agent (\\w+)");
+            Regex match = new Regex("agentnavnet Agent (\\w+)");
             var matchCollection = Regex.Matches(Messages.LastOrDefault()?.Message ?? "", "agentnavnet Agent (\\w+)");
             AgentName = matchCollection.Last().Groups.Values.Last().Value;
             await Send("/ok");
