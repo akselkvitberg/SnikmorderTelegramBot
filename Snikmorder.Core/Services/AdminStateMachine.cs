@@ -11,19 +11,24 @@ namespace Snikmorder.Core.Services
     public class AdminStateMachine
     {
         private readonly ITelegramSender _sender;
-        private readonly IPlayerRepository _playerRepository;
+        private readonly IGameRepository _gameRepository;
         private readonly GameService _gameService;
 
-        public AdminStateMachine(ITelegramSender sender, IPlayerRepository playerRepository, GameService gameService)
+        public AdminStateMachine(ITelegramSender sender, IGameRepository gameRepository, GameService gameService)
         {
             _sender = sender;
-            _playerRepository = playerRepository;
+            _gameRepository = gameRepository;
             _gameService = gameService;
         }
 
-        public bool IsFromAdmin(Message message)
+        public async Task<bool> IsFromAdmin(Message message)
         {
             if (message.From.Id == 0)
+            {
+                return true;
+            }
+
+            if (await _gameRepository.IsAdmin(message.From.Id))
             {
                 return true;
             }
@@ -35,10 +40,24 @@ namespace Snikmorder.Core.Services
         {
             var fromId = message.From.Id;
 
-            var game = await _gameService.GetGame();
+            if (message.Contact != null)
+            {
+                await _gameRepository.AddAdmin(message.Contact);
+                return;
+            }
+
+            if (string.Equals(message.Text, "/admins", StringComparison.OrdinalIgnoreCase))
+            {
+                var admins = await _gameRepository.GetAdmins();
+                var adminList = string.Join("\n", admins.Select(x => $"{x.FirstName} {x.LastName}"));
+                await _sender.SendMessage(fromId, "Admins:" + adminList);
+                return;
+            }
+
+            var gameState = await _gameRepository.GetGameState();
             
 
-            if (game.State == GameState.Started)
+            if (gameState == GameState.Started)
             {
                 switch (message.Text.ToLower())
                 {
@@ -46,8 +65,8 @@ namespace Snikmorder.Core.Services
                         await _sender.SendMessage(fromId, "Kommandoer:\n/status - se hvor mange agenter som er i spill\n/oppdrag - se hvilke mål hver agent har");
                         return;
                     case "/status":
-                        int activePlayers = (await _playerRepository.GetAllPlayersActive()).Count;
-                        int deadPlayers = (await _playerRepository.GetAllPlayersInState(PlayerState.Killed)).Count;
+                        int activePlayers = (await _gameRepository.GetAllPlayersActive()).Count;
+                        int deadPlayers = (await _gameRepository.GetAllPlayersInState(PlayerState.Killed)).Count;
                         await _sender.SendMessage(fromId, $"Det er {activePlayers} agenter i spill.\nDet er {deadPlayers} døde agenter.");
                         return;
                     case "/oppdrag":
@@ -56,12 +75,12 @@ namespace Snikmorder.Core.Services
                 return;
             }
 
-            if (game.State == GameState.Ended)
+            if (gameState == GameState.Ended)
             {
                 if (string.Equals(message.Text, "/restart", StringComparison.OrdinalIgnoreCase))
                 {
-                    await _gameService.SetState(GameState.NotStarted);
-                    await _playerRepository.Reset();
+                    await _gameRepository.SetGameState(GameState.NotStarted);
+                    await _gameRepository.Reset();
                 }
                 return;
             }
@@ -71,14 +90,14 @@ namespace Snikmorder.Core.Services
             #if DEBUG
             if (message.Text == "/all")
             {
-                var playersWaitingForApproval = await _playerRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval);
+                var playersWaitingForApproval = await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval);
                 foreach (var player in playersWaitingForApproval)
                 {
                     player.State = PlayerState.WaitingForGameStart;
                     player.ApprovalId = null;
                     await _sender.SendMessage(player, string.Format(Messages.ApplicationApproved, player.AgentName));
                 }
-                await _playerRepository.Save();
+                await _gameRepository.Save();
                 playersWaitingForApproval.Clear();
                 await _sender.SendMessage(fromId, "Det er ingen agenter til godkjenning.\nSend /begynn for å starte spillet.");
             }
@@ -86,7 +105,7 @@ namespace Snikmorder.Core.Services
 
             var text = message.Text.ToLower();
 
-            var playerApprovedBy = await _playerRepository.GetPlayerApprovedBy(fromId);
+            var playerApprovedBy = await _gameRepository.GetPlayerApprovedBy(fromId);
 
             if (playerApprovedBy != null)
             {
@@ -102,7 +121,7 @@ namespace Snikmorder.Core.Services
                 {
                     playerApprovedBy.State = PlayerState.WaitingForGameStart;
                     playerApprovedBy.ApprovalId = null;
-                    await _playerRepository.Save();
+                    await _gameRepository.Save();
                     _ = Task.Factory.StartNew(async () =>
                     {
                         await _sender.SendMessage(playerApprovedBy, string.Format(Messages.ApplicationApproved, playerApprovedBy.AgentName));
@@ -118,7 +137,8 @@ namespace Snikmorder.Core.Services
                 else if (text == "/forkast")
                 {
                     playerApprovedBy.State = PlayerState.Started;
-                    await _playerRepository.Save();
+                    playerApprovedBy.ApprovalId = null;
+                    await _gameRepository.Save();
                     await _sender.SendMessage(playerApprovedBy, Messages.ApplicationNotApproved);
                     await GetNextForApproval(fromId);
                 }
@@ -134,11 +154,11 @@ namespace Snikmorder.Core.Services
                     case "/hjelp":
                         await _sender.SendMessage(fromId, Messages.ApprovalHelp);
                         return;
-                    case "/status" when game.State < GameState.Started:
+                    case "/status" when gameState < GameState.Started:
                     {
-                        //int waitingPlayers = await _playerRepository.GetWaitingPlayerCount();
-                        //int approvalCount =  await _playerRepository.CountAllPlayersInState(PlayerState.WaitingForAdminApproval);
-                        //approvalCount += await _playerRepository.CountAllPlayersInState(PlayerState.PickedForAdminApproval);
+                        //int waitingPlayers = await _gameRepository.GetWaitingPlayerCount();
+                        //int approvalCount =  await _gameRepository.CountAllPlayersInState(PlayerState.WaitingForAdminApproval);
+                        //approvalCount += await _gameRepository.CountAllPlayersInState(PlayerState.PickedForAdminApproval);
                         //await _sender.SendMessage(fromId, $"Det er {waitingPlayers} agenter som venter på start.\n{approvalCount} agenter som venter på godkjenning.");
                         return;
                     }
@@ -147,19 +167,19 @@ namespace Snikmorder.Core.Services
                         return;
                     case "/begynn":
                     {
-                        int approvalCount = (await _playerRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval)).Count;
-                        approvalCount += (await _playerRepository.GetAllPlayersInState(PlayerState.PickedForAdminApproval)).Count;
+                        int approvalCount = (await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval)).Count;
+                        approvalCount += (await _gameRepository.GetAllPlayersInState(PlayerState.PickedForAdminApproval)).Count;
                         if (approvalCount > 0)
                         {
                             await _sender.SendMessage(fromId, $"Det er fremdeles {approvalCount} agenter som må godkjennes");
                             return;
                         }
 
-                        int waitingPlayers2 = (await _playerRepository.GetAllPlayersInState(PlayerState.WaitingForGameStart)).Count;
+                        int waitingPlayers2 = (await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForGameStart)).Count;
                         if (waitingPlayers2 > 3)
                         {
                             await _sender.SendMessage(fromId, $"Det er {waitingPlayers2} agenter som venter på start.\nEr du sikker på at du vil starte spillet?\n/Ja - Starter spillet\n/Nei - utsett start");
-                            await _gameService.SetState(GameState.PreStart);
+                            await _gameRepository.SetGameState(GameState.PreStart);
                         }
                         else
                         {
@@ -168,12 +188,12 @@ namespace Snikmorder.Core.Services
 
                         return;
                     }
-                    case "/ja" when game.State == GameState.PreStart:
+                    case "/ja" when gameState == GameState.PreStart:
                         await _sender.SendMessage(fromId, $"Spillet er startet!");
                         await _gameService.StartGame();
                         return;
-                    case "/nei" when game.State == GameState.PreStart:
-                        await _gameService.SetState(GameState.NotStarted);
+                    case "/nei" when gameState == GameState.PreStart:
+                        await _gameRepository.SetGameState(GameState.NotStarted);
                         return;
                 }
             }
@@ -181,13 +201,13 @@ namespace Snikmorder.Core.Services
 
         private async Task GetNextForApproval(int fromId)
         {
-            var waitingForApproval = await _playerRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval);
+            var waitingForApproval = await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval);
             var player = waitingForApproval.FirstOrDefault();
             if (player != null)
             {
                 player.ApprovalId = fromId;
                 player.State = PlayerState.PickedForAdminApproval;
-                await _playerRepository.Save();
+                await _gameRepository.Save();
                 await _sender.SendImage(fromId, $"Navn: {player.PlayerName}\nAgent {player.AgentName}\n/godkjenn eller \n/forkast", player.PictureId);
             }
             else

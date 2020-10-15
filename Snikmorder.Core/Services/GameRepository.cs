@@ -4,14 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Snikmorder.Core.Models;
+using Telegram.Bot.Types;
 
 namespace Snikmorder.Core.Services
 {
-    public class PlayerRepository : IPlayerRepository
+    public class GameRepository : IGameRepository
     {
         private readonly GameContext _gameContext;
 
-        public PlayerRepository(GameContext gameContext)
+        public GameRepository(GameContext gameContext)
         {
             _gameContext = gameContext;
         }
@@ -68,6 +69,40 @@ namespace Snikmorder.Core.Services
         public async Task Save()
         {
             await _gameContext.SaveChangesAsync();
+        }
+
+        public async Task SetGameState(GameState state)
+        {
+            var game = await _gameContext.Games.FirstOrDefaultAsync();
+            if (game == null)
+            {
+                game = new Models.Game();
+                await _gameContext.Games.AddAsync(game);
+            }
+            game.State = state;
+            await _gameContext.SaveChangesAsync();
+        }
+
+        public async Task<GameState> GetGameState()
+        {
+            var game = await _gameContext.Games.FirstOrDefaultAsync();
+            return game?.State ?? GameState.NotStarted;
+        }
+
+        public async Task<List<Contact>> GetAdmins()
+        {
+            return await _gameContext.Admins.ToListAsync();
+        }
+
+        public async Task AddAdmin(Contact messageContact)
+        {
+            await _gameContext.Admins.AddAsync(messageContact);
+            await _gameContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsAdmin(int userId)
+        {
+            return await _gameContext.Admins.AnyAsync(x => x.UserId == userId);
         }
     }
 }

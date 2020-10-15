@@ -1,10 +1,11 @@
 ﻿using Snikmorder.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Telegram.Bot.Types;
 
 namespace Snikmorder.Core.Services
 {
-    public interface IPlayerRepository
+    public interface IGameRepository
     {
         Task AddPlayer(Player player);
 
@@ -20,5 +21,11 @@ namespace Snikmorder.Core.Services
 
         Task Reset();
         Task Save();
+
+        Task SetGameState(GameState state);
+        Task<GameState> GetGameState();
+        Task<List<Contact>> GetAdmins();
+        Task AddAdmin(Contact messageContact);
+        Task<bool> IsAdmin(int userId);
     }
 }

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.EntityFrameworkCore;
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Services;
 using Telegram.Bot.Types;
-using Game = Snikmorder.Core.Models.Game;
 
 namespace Snikmorder.DesktopClient.GameMock
 {
@@ -24,9 +21,9 @@ namespace Snikmorder.DesktopClient.GameMock
 
         public async Task Start()
         {
-            var playerContext = new GameContext();
-            await playerContext.Database.EnsureDeletedAsync();
-            await playerContext.Database.EnsureCreatedAsync();
+            //var playerContext = new GameContext(true);
+            //await playerContext.Database.EnsureDeletedAsync();
+            //await playerContext.Database.EnsureCreatedAsync();
 
             for (var i = 0; i < 10; i++)
             {
@@ -62,10 +59,11 @@ namespace Snikmorder.DesktopClient.GameMock
                 };
             }
 
-            var playerRepository = new PlayerRepository(new GameContext());
-            var gameService = new GameService(new GameContext(), playerRepository, _mockTelegramSender);
-            var adminStateMachine = new AdminStateMachine(_mockTelegramSender, playerRepository, gameService);
-            var playerStateMachine = new PlayerStateMachine(_mockTelegramSender, playerRepository, adminStateMachine, gameService);
+            //var repository = new GameRepository(new GameContext(true));
+            var repository = new MockGameRepository();
+            var gameService = new GameService(repository, _mockTelegramSender);
+            var adminStateMachine = new AdminStateMachine(_mockTelegramSender, repository, gameService);
+            var playerStateMachine = new PlayerStateMachine(_mockTelegramSender, repository, adminStateMachine, gameService);
             var _messageHandler = new MessageHandler(adminStateMachine, playerStateMachine);
             _ = _messageHandler.OnMessage(msg);
 

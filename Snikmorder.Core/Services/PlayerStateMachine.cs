@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Resources;
@@ -11,14 +12,14 @@ namespace Snikmorder.Core.Services
     public class PlayerStateMachine
     {
         private readonly ITelegramSender _sender;
-        private readonly IPlayerRepository _playerRepository;
+        private readonly IGameRepository _gameRepository;
         private readonly AdminStateMachine _adminStateMachine;
         private readonly GameService _gameService;
 
-        public PlayerStateMachine(ITelegramSender sender, IPlayerRepository playerRepository, AdminStateMachine adminStateMachine, GameService gameService)
+        public PlayerStateMachine(ITelegramSender sender, IGameRepository gameRepository, AdminStateMachine adminStateMachine, GameService gameService)
         {
             _sender = sender;
-            _playerRepository = playerRepository;
+            _gameRepository = gameRepository;
             _adminStateMachine = adminStateMachine;
             _gameService = gameService;
         }
@@ -26,22 +27,22 @@ namespace Snikmorder.Core.Services
         public async Task HandlePlayerMessage(Message message)
         {
             // Get Player by ID
-            Player? player = await _playerRepository.GetPlayer(message.From.Id);
+            Player? player = await _gameRepository.GetPlayer(message.From.Id);
 
-            var game = await _gameService.GetGame();
+            var gameState = await _gameRepository.GetGameState();
 
             if (player == null)
             {
                 player = HandleNewPlayer(message);
             }
 
-            if (game.State == GameState.Ended)
+            if (gameState == GameState.Ended)
             {
                 await _sender.SendMessage(player, "Spillet er over.");
                 return;
             }
             
-            if (game.State >= GameState.Started && player.State < PlayerState.Active)
+            if (gameState >= GameState.Started && player.State < PlayerState.Active)
             {
                 await _sender.SendMessage(player, "Spillet er allerede i gang. Du rakk desverre ikke å bli med.");
                 return;
@@ -96,14 +97,14 @@ namespace Snikmorder.Core.Services
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            await _playerRepository.Save();
+            await _gameRepository.Save();
         }
 
         private Player HandleNewPlayer(Message message)
         {
             var p = new Player(message.From.Id);
 
-            _playerRepository.AddPlayer(p);
+            _gameRepository.AddPlayer(p);
             return p;
         }
 
@@ -141,9 +142,22 @@ namespace Snikmorder.Core.Services
                     text = text.Replace("agent", "").Trim();
                 }
 
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    _sender.SendMessage(player, $"Du må angi et agentnavn eller sende /ok for å bekrefte Agent {player.AgentName}.");
+                    return;
+                }
+
                 if (text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length > 1)
                 {
                     _sender.SendMessage(player, $"Agentnavn kan ikke ha mellomrom. Prøv igjen, eller send /ok for å bruke {player.AgentName} som ditt agentnavn");
+                    return;
+                }
+
+                var success = Regex.Match(text, "^[a-zæøå0-9]+\\z").Success;
+                if (!success)
+                {
+                    _sender.SendMessage(player, "Agentnavn kan bare ha bokstaver og tall, ikke symboler");
                     return;
                 }
 
@@ -212,7 +226,7 @@ namespace Snikmorder.Core.Services
                     await _sender.SendMessage(player, Messages.GameRulesReveal);
                     return true;
                 case "/info":
-                    var target = await _playerRepository.GetPlayer(player.TargetId);
+                    var target = await _gameRepository.GetPlayer(player.TargetId);
                     await _sender.SendImage(player, string.Format(Messages.PlayerInfo, player.AgentName, target?.PlayerName), target?.PictureId);
                     return true;
                 default:
@@ -268,7 +282,7 @@ namespace Snikmorder.Core.Services
                 return;
             }
 
-            var target = await _playerRepository.GetPlayer(player.TargetId);
+            var target = await _gameRepository.GetPlayer(player.TargetId);
             if (target == null)
             {
                 throw new NullReferenceException();
@@ -307,7 +321,7 @@ namespace Snikmorder.Core.Services
             await _sender.SendMessage(target, "Beklager, du er ute av spillet.");
             await _sender.SendMessage(player, $"Agent {target.AgentName} er bekreftet eliminert!");
 
-            var newTarget = await _playerRepository.GetPlayer(target.TargetId);
+            var newTarget = await _gameRepository.GetPlayer(target.TargetId);
 
             if (newTarget.TargetId == player.TelegramUserId)
             {
@@ -339,7 +353,7 @@ namespace Snikmorder.Core.Services
 
             agentName = agentName.Replace("agent", "").Trim();
 
-            var agent = await _playerRepository.GetPlayerByAgentName(agentName);
+            var agent = await _gameRepository.GetPlayerByAgentName(agentName);
             
             if (agent == null)
             {
@@ -373,8 +387,8 @@ namespace Snikmorder.Core.Services
 
             agent.State = PlayerState.Killed; //todo save
             
-            var newTarget = await _playerRepository.GetPlayer(agent.TargetId);
-            var hunter = await _playerRepository.GetHunter(agent.TelegramUserId);
+            var newTarget = await _gameRepository.GetPlayer(agent.TargetId);
+            var hunter = await _gameRepository.GetHunter(agent.TelegramUserId);
 
             if (hunter == null || newTarget == null)
             {
@@ -386,7 +400,7 @@ namespace Snikmorder.Core.Services
 
             player.State = PlayerState.Active;
             
-            if ((await _playerRepository.GetAllPlayersActive()).Count == 2)
+            if ((await _gameRepository.GetAllPlayersActive()).Count == 2)
             {
                 // Win state
                 await _gameService.EndWithWinners(player, newTarget);

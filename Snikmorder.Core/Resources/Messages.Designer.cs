@@ -19,7 +19,7 @@ namespace Snikmorder.Core.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Messages {
@@ -131,7 +131,7 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to For å eliminere målet ditt, hvisker du &quot;Du er død&quot; uten å bli oppdaget av noen andre. Agenten må da svare med sitt hemmelige agent-navn, som du må sende oss. Send først /eliminer for å starte elimineringsprosessen, og så det hemmelige agent-navnet..
+        ///   Looks up a localized string similar to For å eliminere målet ditt, hvisker du &quot;Du er død&quot; til agenten uten å bli oppdaget av noen andre. Agenten må da svare med sitt hemmelige agent-navn, som du må sende oss. Send først /eliminer for å starte elimineringsprosessen, og så det hemmelige agent-navnet..
         /// </summary>
         internal static string GameRulesEliminate {
             get {

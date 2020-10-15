@@ -2,32 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Snikmorder.Core.Resources;
 using Snikmorder.Core.Services;
+using Telegram.Bot.Types;
 
 namespace Snikmorder.Core.Models
 {
     public class GameService
     {
-        private readonly GameContext _gameContext;
-        private readonly IPlayerRepository _playerRepository;
+        private readonly IGameRepository _gameRepository;
         private readonly ITelegramSender _sender;
 
-        public GameService(GameContext gameContext, IPlayerRepository playerRepository, ITelegramSender sender)
+        public GameService(IGameRepository gameRepository, ITelegramSender sender)
         {
-            _gameContext = gameContext;
-            _playerRepository = playerRepository;
+            _gameRepository = gameRepository;
             _sender = sender;
         }
 
         public async Task StartGame()
         {
-            var game = await _gameContext.Games.FirstOrDefaultAsync();
-            game.State = GameState.Started;
-            await _gameContext.SaveChangesAsync();
+            await _gameRepository.SetGameState(GameState.Started);//_gameContext.Games.FirstOrDefaultAsync();
 
-            var allWaitingPlayers = await _playerRepository.GetAllPlayersInState(PlayerState.WaitingForGameStart);
+            var allWaitingPlayers = await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForGameStart);
 
             var list1 = allWaitingPlayers.OrderBy(x => Guid.NewGuid()).ToList();
             var list2 = list1.Skip(1).Concat(list1.Take(1)); // shift list by 1
@@ -41,19 +37,17 @@ namespace Snikmorder.Core.Models
                 await _sender.SendImage(tuple.First, string.Format(Messages.FirstTarget, tuple.Second.PlayerName), tuple.Second.PictureId);
             }
 
-            await _playerRepository.Save();
+            await _gameRepository.Save();
         }
 
         public async Task EndWithWinners(Player player1, Player player2)
         {
-            var game = await _gameContext.Games.FirstOrDefaultAsync();
-            game.State = GameState.Ended;
-            await _gameContext.SaveChangesAsync();
-
+            await _gameRepository.SetGameState(GameState.Ended);
+            
             player1.State = PlayerState.Winner;
             player2.State = PlayerState.Winner;
 
-            var allPlayersInGame = await _playerRepository.GetAllPlayersInGame();
+            var allPlayersInGame = await _gameRepository.GetAllPlayersInGame();
 
             foreach (var player in allPlayersInGame)
             {
@@ -62,32 +56,6 @@ namespace Snikmorder.Core.Models
 
             await _sender.SendMessage(player2, "Gratulerer! Du kom på andreplass!");
             await _sender.SendMessage(player1, "Gratulerer! Du kom på førsteplass!");
-        }
-
-        public async Task<Game> GetGame()
-        {
-            var game = await _gameContext.Games.FirstOrDefaultAsync();
-            if (game != null)
-            {
-                return game;
-            }
-            var entity = new Game()
-            {
-                Id = Guid.NewGuid()
-            };
-            await _gameContext.Games.AddAsync(entity);
-            await _gameContext.SaveChangesAsync();
-            return entity;
-        }
-
-        public async Task SetState(GameState state)
-        {
-            var game = await _gameContext.Games.FirstOrDefaultAsync();
-            if (game != null)
-            {
-                game.State = state;
-                await _gameContext.SaveChangesAsync();
-            }
         }
     }
 

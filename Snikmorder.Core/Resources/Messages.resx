@@ -185,7 +185,7 @@ For å eliminere målet må du viske "Du er død" til agenten.
 Agenten må da svare deg med sitt hemmelige Agent navn, som du sender oss ved å skrive /eliminer, og så navnet.</value>
   </data>
   <data name="GameRulesEliminate" xml:space="preserve">
-    <value>For å eliminere målet ditt, hvisker du "Du er død" uten å bli oppdaget av noen andre. Agenten må da svare med sitt hemmelige agent-navn, som du må sende oss. Send først /eliminer for å starte elimineringsprosessen, og så det hemmelige agent-navnet.</value>
+    <value>For å eliminere målet ditt, hvisker du "Du er død" til agenten uten å bli oppdaget av noen andre. Agenten må da svare med sitt hemmelige agent-navn, som du må sende oss. Send først /eliminer for å starte elimineringsprosessen, og så det hemmelige agent-navnet.</value>
   </data>
   <data name="GameRulesReveal" xml:space="preserve">
     <value>Dersom du overhører en annen agent som eliminerer noen, kan du avsløre de ved å si "Du er avslørt!" til agenten, som da må svare med sitt agent-navn.

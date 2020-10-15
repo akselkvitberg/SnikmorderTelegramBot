@@ -21,7 +21,7 @@ namespace Snikmorder.DesktopClient.GameMock
 
             if (!isAdmin)
             {
-                //OnExecuteMakePlayerCommand(null);
+                OnExecuteMakePlayerCommand(null);
             }
             else
             {
@@ -92,7 +92,7 @@ namespace Snikmorder.DesktopClient.GameMock
 
         private void OnExecuteSendImageCommand(object o)
         {
-            var imageSource = $"https://api.adorable.io/avatars/128/Agent{UserId}.png";
+            var imageSource = $"/Snikmorder.DesktopClient;component/Resources/{UserId}.png";
             Messages.Add(new TelegramMockMessage("", true, imageSource));
             _gameHostService.SendMessage(UserId, imagePath: imageSource);
         }
@@ -174,8 +174,8 @@ namespace Snikmorder.DesktopClient.GameMock
             var matchCollection = Regex.Matches(Messages.LastOrDefault()?.Message ?? "", "agentnavnet Agent (\\w+)");
             AgentName = matchCollection.Last().Groups.Values.Last().Value;
             await Send("/ok");
-            Messages.Add(new TelegramMockMessage(null, true, $"https://api.adorable.io/avatars/128/Agent{UserId}.png"));
-            _gameHostService.SendMessage(UserId, "", $"https://api.adorable.io/avatars/128/Agent{UserId}.png");
+            Messages.Add(new TelegramMockMessage(null, true, $"/Snikmorder.DesktopClient;component/Resources/{UserId}.png"));
+            _gameHostService.SendMessage(UserId, "", $"/Snikmorder.DesktopClient;component/Resources/{UserId}.png");
             await Task.Delay(1500);
             await Send("/ok");
         }

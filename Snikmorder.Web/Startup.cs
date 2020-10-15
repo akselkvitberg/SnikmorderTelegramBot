@@ -1,6 +1,9 @@
+using System.Data.Common;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,12 +35,23 @@ namespace SnikmorderTelegramBot
                 return new TelegramBotClient(key, provider.GetService<HttpClient>());
             });
 
+            var builder = new DbConnectionStringBuilder()
+            {
+                ConnectionString = Configuration.GetConnectionString("CosmosSettings")
+            };
+
+            builder.TryGetValue("AccountEndpoint", out object endpoint);
+            builder.TryGetValue("AccountKey", out object key);
+
+            services.AddDbContext<GameContext>(option => option.UseCosmos(endpoint?.ToString() ?? "", key?.ToString() ?? "", "snikmorder"));
+
             services.AddScoped<MessageHandler>();
             services.AddScoped<AdminStateMachine>();
-            services.AddScoped<TelegramSender>();
+            services.AddScoped<ITelegramSender, TelegramSender>();
             services.AddScoped<PlayerStateMachine>();
-            services.AddScoped<Game>();
-            services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<GameService>();
+            services.AddScoped<IGameRepository, GameRepository>();
+            services.AddApplicationInsightsTelemetry();
 
         }
 
@@ -57,6 +71,18 @@ namespace SnikmorderTelegramBot
             {
                 endpoints.MapControllers();
             });
+
+            _ = UpdateDatabase(app);
         }
+
+        private static async Task UpdateDatabase(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope();
+            await using var context = serviceScope.ServiceProvider.GetService<GameContext>();
+            await context.Database.EnsureCreatedAsync();
+        }
+
     }
 }
