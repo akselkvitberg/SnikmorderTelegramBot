@@ -3,12 +3,13 @@
     "secrets1": {
       "type": "secrets"
     },
+    "appInsights1": {
+      "type": "appInsights",
+      "connectionId": "APPINSIGHTS_INSTRUMENTATIONKEY"
+    },
     "cosmosdb1": {
       "type": "cosmosdb",
       "connectionId": "CosmosSettings"
-    },
-    "appInsights1": {
-      "type": "appInsights"
     }
   }
 }

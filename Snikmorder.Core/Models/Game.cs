@@ -51,7 +51,7 @@ namespace Snikmorder.Core.Models
 
             foreach (var player in allPlayersInGame)
             {
-                await _sender.SendMessage(player, $"Spillet er over! {player1.PlayerName} og {player2.PlayerName} er vinnerne!");
+                await _sender.SendMessage(player, $"Spillet er over!\n{player1.PlayerName} og {player2.PlayerName} er vinnerne!");
             }
 
             await _sender.SendMessage(player2, "Gratulerer! Du kom på andreplass!");

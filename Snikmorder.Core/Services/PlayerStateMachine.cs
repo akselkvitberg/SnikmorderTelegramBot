@@ -48,7 +48,7 @@ namespace Snikmorder.Core.Services
                 return;
             }
 
-            if (player.State < PlayerState.WaitingForAdminApproval && string.Equals(message.Text, "/nysøknad", StringComparison.InvariantCultureIgnoreCase))
+            if (player.State < PlayerState.WaitingForAdminApproval && string.Equals(message.Text, "/ny", StringComparison.InvariantCultureIgnoreCase))
             {
                 player.State = PlayerState.Started;
             }
@@ -256,7 +256,7 @@ namespace Snikmorder.Core.Services
                     player.State = PlayerState.ConfirmKill;
                 }
             }
-            else if (strings[0] == ("/avslør"))
+            else if (strings[0] == ("/avslør") || strings[0] == ("/avslor"))
             {
                 if (strings.Length > 1)
                 {
@@ -407,7 +407,7 @@ namespace Snikmorder.Core.Services
                 return;
             }
 
-            await _sender.SendMessage(player, $"Agent {agent.AgentName} ble avslørt og er ute av spllet!");
+            await _sender.SendMessage(player, $"Agent {agent.AgentName} ble avslørt og er ute av spillet!");
             await _sender.SendMessage(agent, "Beklager, du ble avslørt og er ute av spillet.");
             await _sender.SendImage(hunter, string.Format(Messages.NextTarget, newTarget.PlayerName), newTarget.PictureId);
         }

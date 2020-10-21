@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading.Tasks;
 using Snikmorder.Core.Models;
 using Snikmorder.Core.Resources;
@@ -32,7 +34,6 @@ namespace Snikmorder.Core.Services
             {
                 return true;
             }
-            // Todo: Detect if user is admin - stored in db?
             return false;
         }
 
@@ -70,6 +71,23 @@ namespace Snikmorder.Core.Services
                         await _sender.SendMessage(fromId, $"Det er {activePlayers} agenter i spill.\nDet er {deadPlayers} døde agenter.");
                         return;
                     case "/oppdrag":
+                        var allPlayersActive = await _gameRepository.GetAllPlayersActive();
+                        var dict = allPlayersActive.ToDictionary(x => x.TelegramUserId);
+
+                        StringBuilder sb = new StringBuilder();
+                        var player = allPlayersActive.First();
+                        sb.AppendLine($"{player.PlayerName} - Agent {player.AgentName}");
+
+                        while (dict.Count > 0)
+                        {
+                            player = dict[player.TargetId];
+                            dict.Remove(player.TelegramUserId);
+
+                            sb.AppendLine("⬇");
+                            sb.AppendLine($"{player.PlayerName} - Agent {player.AgentName}");
+                        }
+
+                        await _sender.SendMessage(fromId, sb.ToString());
                         return;
                 }
                 return;
@@ -151,16 +169,14 @@ namespace Snikmorder.Core.Services
             {
                 switch (text)
                 {
-                    case "/hjelp":
-                        await _sender.SendMessage(fromId, Messages.ApprovalHelp);
-                        return;
+                    
                     case "/status" when gameState < GameState.Started:
                     {
-                        //int waitingPlayers = await _gameRepository.GetWaitingPlayerCount();
-                        //int approvalCount =  await _gameRepository.CountAllPlayersInState(PlayerState.WaitingForAdminApproval);
-                        //approvalCount += await _gameRepository.CountAllPlayersInState(PlayerState.PickedForAdminApproval);
-                        //await _sender.SendMessage(fromId, $"Det er {waitingPlayers} agenter som venter på start.\n{approvalCount} agenter som venter på godkjenning.");
-                        return;
+                            var waitingPlayers = await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForGameStart);
+                            var approvalCount = (await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval)).Count;
+                            approvalCount += (await _gameRepository.GetAllPlayersInState(PlayerState.PickedForAdminApproval)).Count;
+                            await _sender.SendMessage(fromId, $"Det er {waitingPlayers.Count} agenter som venter på start.\n{approvalCount} agenter som venter på godkjenning.");
+                            return;
                     }
                     case "/neste":
                         await GetNextForApproval(fromId);
@@ -194,6 +210,9 @@ namespace Snikmorder.Core.Services
                         return;
                     case "/nei" when gameState == GameState.PreStart:
                         await _gameRepository.SetGameState(GameState.NotStarted);
+                        return;
+                    default:
+                        await _sender.SendMessage(fromId, Messages.ApprovalHelp);
                         return;
                 }
             }

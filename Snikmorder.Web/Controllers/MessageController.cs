@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Snikmorder.Core.Services;
@@ -20,17 +21,18 @@ namespace SnikmorderTelegramBot.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TelegramMessage(Message? message)
+        public async Task<IActionResult> TelegramMessage([FromBody] Update update)
         {
             // Send to parser
+            var message = update?.Message;
 
             if (message == null)
             {
                 return Ok();
             }
 
-            await _messageHandler.OnMessage(message);
-            return Ok();
+            var status = await _messageHandler.OnMessage(message);
+            return Ok(status);
         }
     }
 }

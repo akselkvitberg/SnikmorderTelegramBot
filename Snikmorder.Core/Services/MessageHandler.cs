@@ -1,21 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot.Types;
 
 namespace Snikmorder.Core.Services
 {
     public class MessageHandler
     {
+        private readonly ILogger<MessageHandler> _logger;
         private readonly AdminStateMachine _adminStateMachine;
         private readonly PlayerStateMachine _playerStateMachine;
 
-        public MessageHandler(AdminStateMachine adminStateMachine, PlayerStateMachine playerStateMachine)
+        public MessageHandler(ILogger<MessageHandler> logger, AdminStateMachine adminStateMachine, PlayerStateMachine playerStateMachine)
         {
+            _logger = logger;
             _adminStateMachine = adminStateMachine;
             _playerStateMachine = playerStateMachine;
         }
 
-        public async Task OnMessage(Message message)
+        public async Task<string> OnMessage(Message message)
         {
             try
             {
@@ -30,8 +33,11 @@ namespace Snikmorder.Core.Services
             }
             catch (Exception e)
             {
-                // todo: log something
+                _logger.LogError(e, e.Message);
+                return e.Message + "\n" + e.StackTrace;
             }
+
+            return "true";
         }
     }
 }

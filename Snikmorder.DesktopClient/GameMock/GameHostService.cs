@@ -19,11 +19,16 @@ namespace Snikmorder.DesktopClient.GameMock
             _mockTelegramSender = new MockTelegramSender(this);
         }
 
+        private static bool useCosmos = false;
+
         public async Task Start()
         {
-            //var playerContext = new GameContext(true);
-            //await playerContext.Database.EnsureDeletedAsync();
-            //await playerContext.Database.EnsureCreatedAsync();
+            if (useCosmos)
+            {
+                var playerContext = new GameContext(true);
+                await playerContext.Database.EnsureDeletedAsync();
+                await playerContext.Database.EnsureCreatedAsync();
+            }
 
             for (var i = 0; i < 10; i++)
             {
@@ -59,12 +64,15 @@ namespace Snikmorder.DesktopClient.GameMock
                 };
             }
 
-            //var repository = new GameRepository(new GameContext(true));
-            var repository = new MockGameRepository();
+            IGameRepository repository;
+            if (useCosmos)
+                repository = new GameRepository(new GameContext(true));
+            else
+                repository = new MockGameRepository();
             var gameService = new GameService(repository, _mockTelegramSender);
             var adminStateMachine = new AdminStateMachine(_mockTelegramSender, repository, gameService);
             var playerStateMachine = new PlayerStateMachine(_mockTelegramSender, repository, adminStateMachine, gameService);
-            var _messageHandler = new MessageHandler(adminStateMachine, playerStateMachine);
+            var _messageHandler = new MessageHandler(null,adminStateMachine, playerStateMachine);
             _ = _messageHandler.OnMessage(msg);
 
         }

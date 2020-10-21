@@ -21,7 +21,7 @@ namespace Snikmorder.DesktopClient.GameMock
 
             if (!isAdmin)
             {
-                OnExecuteMakePlayerCommand(null);
+                //OnExecuteMakePlayerCommand(null);
             }
             else
             {
@@ -166,7 +166,7 @@ namespace Snikmorder.DesktopClient.GameMock
             }
 
             await Send("/start");
-            await Send("/nySøknad");
+            await Send("/ny");
             var randomName = RandomData.GetRandomName();
             PlayerName = randomName;
             await Send(randomName);

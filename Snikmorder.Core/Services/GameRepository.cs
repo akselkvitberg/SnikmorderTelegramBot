@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Snikmorder.Core.Models;
 using Telegram.Bot.Types;
 
@@ -102,7 +103,7 @@ namespace Snikmorder.Core.Services
 
         public async Task<bool> IsAdmin(int userId)
         {
-            return await _gameContext.Admins.AnyAsync(x => x.UserId == userId);
+            return await _gameContext.Admins.FirstOrDefaultAsync(x => x.UserId == userId) != null;
         }
     }
 }

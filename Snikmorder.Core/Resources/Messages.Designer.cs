@@ -71,7 +71,7 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Beklager, søknaden din om å bli agent ble ikke godkjent av hovedkvarteret. Prøv igjen ved å sende /nySøknad.
+        ///   Looks up a localized string similar to Beklager, søknaden din om å bli agent ble ikke godkjent av hovedkvarteret. Prøv igjen ved å sende /ny.
         /// </summary>
         internal static string ApplicationNotApproved {
             get {
@@ -83,7 +83,9 @@ namespace Snikmorder.Core.Resources {
         ///   Looks up a localized string similar to Søknaden din er registrert.
         ///Du vil få svar innen kort tid.
         ///I mellomtiden kan du lese oppdraget ditt:
-        ///Du er en hemmelig agent som har fått i oppdrag å eliminere en annen hemmelig agent. Du får vite navnet på personen og se bildet, men ikke agent-navnet. Målet ditt er å eliminere agenten uten å bli oppdaget av andre, og unngå å bli eliminert selv..
+        ///Du er en hemmelig agent som har fått i oppdrag å eliminere en annen hemmelig agent.
+        ///Du får vite navnet på personen og se et bilde, men ikke agent-navnet.
+        ///Målet ditt er å eliminere agenten uten å bli oppdaget av andre, og unngå å bli eliminert selv..
         /// </summary>
         internal static string ApplicationRegistered {
             get {
@@ -109,7 +111,7 @@ namespace Snikmorder.Core.Resources {
         ///Navn: {0}
         ///Agent-navn: {1}
         ///Er dette rett, send /ok
-        ///Er dette feil, start på nytt ved å sende /nySøknad.
+        ///Er dette feil, start på nytt ved å sende /ny.
         /// </summary>
         internal static string ConfirmApplication {
             get {
@@ -121,8 +123,8 @@ namespace Snikmorder.Core.Resources {
         ///   Looks up a localized string similar to Ditt første mål er:
         ///{0}
         ///
-        ///For å eliminere målet må du viske &quot;Du er død&quot; til agenten.
-        ///Agenten må da svare deg med sitt hemmelige Agent navn, som du sender oss ved å skrive /eliminer, og så navnet..
+        ///Hvisk &quot;Du er død&quot; for å eliminere agenten.
+        ///Agenten må da svare deg med sitt hemmelige Agent navn, som du sender oss ved å skrive /eliminer, og navnet..
         /// </summary>
         internal static string FirstTarget {
             get {
@@ -131,7 +133,7 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to For å eliminere målet ditt, hvisker du &quot;Du er død&quot; til agenten uten å bli oppdaget av noen andre. Agenten må da svare med sitt hemmelige agent-navn, som du må sende oss. Send først /eliminer for å starte elimineringsprosessen, og så det hemmelige agent-navnet..
+        ///   Looks up a localized string similar to For å eliminere målet ditt, hvisker du &quot;Du er død&quot; til agenten uten å bli oppdaget av noen andre. Agenten må da svare med sitt hemmelige agent-navn, som du må sende oss. Send /eliminer og det hemmelige agent-navnet..
         /// </summary>
         internal static string GameRulesEliminate {
             get {
@@ -140,8 +142,8 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dersom du overhører en annen agent som eliminerer noen, kan du avsløre de ved å si &quot;Du er avslørt!&quot; til agenten, som da må svare med sitt agent-navn.
-        ///Send det inn med /avslør og så det hemmelige navnet..
+        ///   Looks up a localized string similar to Dersom du overhører en annen agent som eliminerer noen, kan du avsløre dem ved å si &quot;Du er avslørt!&quot; til agenten, som da må svare med sitt hemmelige agent-navn.
+        ///Send det inn med /avslor, og det hemmelige navnet..
         /// </summary>
         internal static string GameRulesReveal {
             get {
@@ -153,7 +155,7 @@ namespace Snikmorder.Core.Resources {
         ///   Looks up a localized string similar to Ditt nye mål er:
         ///{0}
         ///
-        ///For å eliminere målet må du viske &quot;Du er død&quot; til agenten.
+        ///Hvisk &quot;Du er død&quot; for å eliminere agenten.
         ///Agenten må da svare deg med sitt hemmelige Agent navn, som du sender oss ved å skrive /eliminer, og så navnet..
         /// </summary>
         internal static string NextTarget {
@@ -167,7 +169,7 @@ namespace Snikmorder.Core.Resources {
         ////regler : For å lese reglene.
         ////info: For å se ditt agentnavn og mål.
         ////eliminer : For å eliminere en annen agent
-        ////avslør : For å avsløre en annen agent.
+        ////avslor : For å avsløre en annen agent.
         /// </summary>
         internal static string PlayerHelp {
             get {
@@ -186,11 +188,8 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Vi har registrert navnet ditt.
-        ///For å fortsette trenger vi å vite agent-navnet ditt.
-        ///Du har fått et hemmelig agentnavnet Agent {0}, men du kan lage ditt eget navn selv. Ikke avslør agentnavnet ditt til noen!
-        ///Skriv inn bekreftelse på at du vil ha agent-navn Agent {0} ved å svare /ok, eller send oss ditt eget agent navn hvis du vil ha et eget navn.
-        ///Men husk at agent-navnet vil bli godkjent av hovedkvarteret, og kan bli avslått..
+        ///   Looks up a localized string similar to Du har fått agentnavnet Agent {0}. Ikke avslør agentnavnet ditt til noen!
+        ///Bekreft at du vil hete Agent {0} ved å svare /ok, eller send oss forslag til ditt eget agent navn..
         /// </summary>
         internal static string RequestAgentName {
             get {
@@ -199,8 +198,8 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Vi har registrert agent navnet ditt. Du vil bli kalt Agent {0}.
-        ///For å fullføre søknaden din må du sende oss et profilbilde. Send oss en selfie der det er helt tydelig hvem du er..
+        ///   Looks up a localized string similar to Du vil bli kalt Agent {0}.
+        ///Til slutt må du sende agent-bilde ditt. Send oss en selfie der det er helt tydelig hvem du er..
         /// </summary>
         internal static string RequestSelfie {
             get {
@@ -249,10 +248,9 @@ namespace Snikmorder.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Velkommen til Divisjonen!
-        ///For å fullføre din søknad om å bli agent må du først sende oss ditt fulle navn.
-        ///Men vi advarer deg. Dersom du prøver å bruke et feil navn vil søknaden din bli avslått.
-        ///Du kan når som helst starte søknaden på nytt ved å skrive /nySøknad.
+        ///   Looks up a localized string similar to Velkommen til Snikmorder!
+        ///For å bli med, skriv ditt fulle navn.
+        ///Du kan når som helst starte på nytt ved å skrive /ny.
         /// </summary>
         internal static string WelcomeMessage {
             get {

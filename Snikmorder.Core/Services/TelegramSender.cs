@@ -34,13 +34,33 @@ namespace Snikmorder.Core.Services
 
         public async Task SendMessage(TelegramReplyMessage replyMessage)
         {
-            _logger.LogDebug($"Sending message: {replyMessage.Id}: {replyMessage.Text}");
+            var replyMessageText = replyMessage.Text
+                .Replace("_", "\\_")
+                .Replace("*", "\\*")
+                .Replace("[", "\\[")
+                .Replace("]", "\\]")
+                .Replace("(", "\\(")
+                .Replace(")", "\\)")
+                .Replace("~", "\\~")
+                .Replace("`", "\\`")
+                .Replace(">", "\\>")
+                .Replace("#", "\\#")
+                .Replace("+", "\\+")
+                .Replace("-", "\\-")
+                .Replace("=", "\\=")
+                .Replace("|", "\\|")
+                .Replace("{", "\\{")
+                .Replace("}", "\\}")
+                .Replace(".", "\\.")
+                .Replace("!", "\\!");
+            _logger.LogDebug($"Sending message: {replyMessage.Id}: {replyMessageText}");
             try
             {
-                await _botClient.SendTextMessageAsync(replyMessage.Id, replyMessage.Text, ParseMode.MarkdownV2, replyMarkup: replyMessage.Keyboard);
+                await _botClient.SendTextMessageAsync(replyMessage.Id, replyMessageText, ParseMode.MarkdownV2, replyMarkup: replyMessage.Keyboard);
             }
-            catch (Exception )
+            catch (Exception e)
             {
+                _logger.LogError(e, e.Message);
             }
         }
     }
