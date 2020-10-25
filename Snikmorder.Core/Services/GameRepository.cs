@@ -65,6 +65,8 @@ namespace Snikmorder.Core.Services
                 player.State = PlayerState.Started;
                 player.TargetId = 0;
             }
+
+            await _gameContext.SaveChangesAsync();
         }
 
         public async Task Save()

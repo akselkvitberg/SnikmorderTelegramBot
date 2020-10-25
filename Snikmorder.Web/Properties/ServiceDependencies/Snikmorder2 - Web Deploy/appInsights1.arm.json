@@ -36,7 +36,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('snikmorder', subscription().subscriptionId)))]",
+      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('Snikmorder.Web', subscription().subscriptionId)))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "apiVersion": "2019-10-01",
       "dependsOn": [
@@ -49,17 +49,12 @@
           "contentVersion": "1.0.0.0",
           "resources": [
             {
-              "name": "snikmorder",
+              "name": "Snikmorder.Web",
+              "type": "microsoft.insights/components",
               "location": "[parameters('resourceLocation')]",
-              "type": "Microsoft.DocumentDB/databaseAccounts",
-              "kind": "GlobalDocumentDB",
-              "systemData": {
-                "createdAt": "2020-10-11T19:21:31.6789514Z"
-              },
-              "properties": {
-                "databaseAccountOfferType": "Standard"
-              },
-              "apiVersion": "2015-04-08"
+              "kind": "web",
+              "properties": {},
+              "apiVersion": "2015-05-01"
             }
           ]
         }
@@ -67,6 +62,6 @@
     }
   ],
   "metadata": {
-    "_dependencyType": "cosmosdb.azure"
+    "_dependencyType": "appInsights.azure"
   }
 }
