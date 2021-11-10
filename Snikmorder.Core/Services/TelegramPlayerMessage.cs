@@ -16,7 +16,7 @@ namespace Snikmorder.Core.Services
             Text = text;
         }
         
-        public int Id { get; }
+        public long Id { get; }
         public string Text { get; }
     }
 }

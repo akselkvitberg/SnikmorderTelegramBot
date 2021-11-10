@@ -218,7 +218,7 @@ namespace Snikmorder.Core.Services
             }
         }
 
-        private async Task GetNextForApproval(int fromId)
+        private async Task GetNextForApproval(long fromId)
         {
             var waitingForApproval = await _gameRepository.GetAllPlayersInState(PlayerState.WaitingForAdminApproval);
             var player = waitingForApproval.FirstOrDefault();

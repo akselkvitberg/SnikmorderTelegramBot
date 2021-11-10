@@ -18,8 +18,8 @@ namespace Snikmorder.Core.Services
             _botClient = botClient;
         }
 
-        public Task SendMessage(int id, string message) => SendMessage(new TelegramReplyMessage(id, message));
-        public async Task SendImage(int id, string message, string? pictureId)
+        public Task SendMessage(long id, string message) => SendMessage(new TelegramReplyMessage(id, message));
+        public async Task SendImage(long id, string message, string? pictureId)
         {
             _logger.LogDebug($"Sending image: {id}: {pictureId}");
             try

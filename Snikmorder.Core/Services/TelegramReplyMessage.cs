@@ -12,16 +12,16 @@ namespace Snikmorder.Core.Services
             Keyboard = new ReplyKeyboardRemove();
         }
 
-        public TelegramReplyMessage(int id, string text) : this(id, text, new ReplyKeyboardRemove()) { }
+        public TelegramReplyMessage(long id, string text) : this(id, text, new ReplyKeyboardRemove()) { }
 
-        public TelegramReplyMessage(int id, string text, IReplyMarkup keyboard)
+        public TelegramReplyMessage(long id, string text, IReplyMarkup keyboard)
         {
             Id = id;
             Text = text;
             Keyboard = keyboard ?? new ReplyKeyboardRemove();
         }
 
-        public int Id { get; }
+        public long Id { get; }
         public string Text { get; }
         public IReplyMarkup Keyboard { get; }
     }

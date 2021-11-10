@@ -14,10 +14,10 @@ namespace Snikmorder.Core.Services
         Task<List<Player>> GetAllPlayersActive();
         Task<List<Player>> GetAllPlayersInGame();
         Task<Player?> GetHunter(long telegramId);
-        Task<Player?> GetPlayer(int telegramUserId);
+        Task<Player?> GetPlayer(long telegramUserId);
         Task<Player?> GetPlayerByAgentName(string agentName);
 
-        Task<Player?> GetPlayerApprovedBy(int adminId);
+        Task<Player?> GetPlayerApprovedBy(long adminId);
 
         Task Reset();
         Task Save();
@@ -26,6 +26,6 @@ namespace Snikmorder.Core.Services
         Task<GameState> GetGameState();
         Task<List<Contact>> GetAdmins();
         Task AddAdmin(Contact messageContact);
-        Task<bool> IsAdmin(int userId);
+        Task<bool> IsAdmin(long userId);
     }
 }

@@ -9,11 +9,11 @@ namespace Snikmorder.Core.Models
             
         }
 
-        public Player(int telegramUserId)
+        public Player(long telegramUserId)
         {
             TelegramUserId = telegramUserId;
         }
-        public int TelegramUserId { get; set; }
+        public long TelegramUserId { get; set; }
         public string? PlayerName { get; set; }
         public string? AgentName { get; set; }
         public string? PictureId { get; set; }
@@ -22,7 +22,7 @@ namespace Snikmorder.Core.Models
         
         public PlayerState State { get; set; }
         
-        public int TargetId { get; set; }
-        public int? ApprovalId { get; set; }
+        public long TargetId { get; set; }
+        public long? ApprovalId { get; set; }
     }
 }

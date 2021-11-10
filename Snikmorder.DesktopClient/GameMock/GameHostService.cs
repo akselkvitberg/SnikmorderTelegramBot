@@ -87,7 +87,7 @@ namespace Snikmorder.DesktopClient.GameMock
             _gameHostService = gameHostService;
         }
 
-        public Task SendMessage(int id, string message)
+        public Task SendMessage(long id, string message)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -97,7 +97,7 @@ namespace Snikmorder.DesktopClient.GameMock
             return Task.CompletedTask;
         }
 
-        public Task SendImage(int id, string message, string? pictureId)
+        public Task SendImage(long id, string message, string? pictureId)
         {
             var telegramMockUser = _gameHostService.Users.FirstOrDefault(x=>x.UserId == id);
             telegramMockUser?.AddImage(message, pictureId);

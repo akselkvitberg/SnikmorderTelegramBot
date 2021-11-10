@@ -43,7 +43,7 @@ namespace Snikmorder.Core.Services
             return (await _gameContext.Players.ToListAsync()).FirstOrDefault(x => x.IsActive && x.TargetId == telegramId);
         }
 
-        public async Task<Player?> GetPlayer(int telegramUserId)
+        public async Task<Player?> GetPlayer(long telegramUserId)
         {
             return await _gameContext.Players.FirstOrDefaultAsync(x=>x.TelegramUserId == telegramUserId);
         }
@@ -53,7 +53,7 @@ namespace Snikmorder.Core.Services
             return (await _gameContext.Players.ToListAsync()).FirstOrDefault(x => x.AgentName?.ToLower() == agentName);
         }
 
-        public async Task<Player> GetPlayerApprovedBy(int adminId)
+        public async Task<Player?> GetPlayerApprovedBy(long adminId)
         {
             return await _gameContext.Players.FirstOrDefaultAsync(x => x.ApprovalId == adminId);
         }
@@ -103,7 +103,7 @@ namespace Snikmorder.Core.Services
             await _gameContext.SaveChangesAsync();
         }
 
-        public async Task<bool> IsAdmin(int userId)
+        public async Task<bool> IsAdmin(long userId)
         {
             return await _gameContext.Admins.FirstOrDefaultAsync(x => x.UserId == userId) != null;
         }
